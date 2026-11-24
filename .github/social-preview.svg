@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <!-- SPDX-License-Identifier: CC-BY-4.0 -->
+  <!-- Social preview for hidizs-ap30-docs. Upload the PNG export (GitHub does not accept SVG). -->
+  <defs>
+    <style>
+      .t  { font-family: Inter, 'DejaVu Sans', sans-serif; fill: #e6edf3; }
+      .m  { font-family: Inter, 'DejaVu Sans', sans-serif; fill: #8b98a5; }
+      .a  { font-family: Inter, 'DejaVu Sans', sans-serif; fill: #4fd1c5; }
+      .mono { font-family: 'DejaVu Sans Mono', monospace; }
+      .box  { fill: #161d26; stroke: #33404f; stroke-width: 2; }
+      .soc  { fill: #10262a; stroke: #4fd1c5; stroke-width: 2.5; }
+      .wire { stroke: #4a5868; stroke-width: 2; fill: none; }
+      .wa   { stroke: #4fd1c5; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" fill="#0d1117"/>
+  <rect x="0" y="0" width="1280" height="6" fill="#4fd1c5"/>
+
+  <!-- Title block -->
+  <text x="80" y="140" class="t" font-size="66" font-weight="700">hidizs-ap30-docs</text>
+  <text x="80" y="196" class="m" font-size="30">Unofficial, open documentation of the Hidizs AP30</text>
+  <text x="80" y="246" class="a" font-size="23" font-weight="600">hardware · firmware · formats · recovery · known bugs</text>
+
+  <!-- Block diagram -->
+  <!-- wires: left column to SoC -->
+  <path class="wire" d="M330 365 H420 V420 H500"/>
+  <path class="wire" d="M330 445 H500"/>
+  <path class="wire" d="M330 525 H420 V470 H500"/>
+  <!-- wires: SoC to right column -->
+  <path class="wa"   d="M800 420 H840 V365 H900"/>
+  <path class="wire" d="M800 470 H840 V525 H900"/>
+  <!-- DAC to amp -->
+  <path class="wa"   d="M990 390 V420"/>
+
+  <!-- left column -->
+  <rect class="box" x="100" y="340" width="230" height="50" rx="8"/>
+  <text x="215" y="372" class="t" font-size="19" text-anchor="middle">2.0" IPS · 296×240</text>
+  <rect class="box" x="100" y="420" width="230" height="50" rx="8"/>
+  <text x="215" y="452" class="t" font-size="19" text-anchor="middle">SD-NAND · microSD</text>
+  <rect class="box" x="100" y="500" width="230" height="50" rx="8"/>
+  <text x="215" y="532" class="t" font-size="19" text-anchor="middle">USB-C · Realtek DAC</text>
+
+  <!-- SoC -->
+  <rect class="soc" x="500" y="390" width="300" height="110" rx="10"/>
+  <text x="650" y="435" class="t" font-size="26" font-weight="700" text-anchor="middle">RKNanoD</text>
+  <text x="650" y="466" class="m" font-size="18" text-anchor="middle">2× Cortex-M3 · 1 MB SRAM</text>
+  <text x="650" y="489" class="m mono" font-size="14" text-anchor="middle">Rockchip</text>
+
+  <!-- right column -->
+  <rect class="box" x="900" y="340" width="280" height="50" rx="8"/>
+  <text x="1040" y="372" class="t" font-size="19" text-anchor="middle">CS43198 DAC</text>
+  <rect class="box" x="900" y="420" width="280" height="50" rx="8"/>
+  <text x="1040" y="452" class="t" font-size="19" text-anchor="middle">RT6863 → 3.5 / 4.4 mm</text>
+  <rect class="box" x="900" y="500" width="280" height="50" rx="8"/>
+  <text x="1040" y="532" class="t" font-size="19" text-anchor="middle">JieLi Bluetooth</text>
+
+  <!-- footer -->
+  <line x1="80" y1="585" x2="1200" y2="585" stroke="#21262d" stroke-width="2"/>
+  <text x="80" y="618" class="m mono" font-size="17">github.com/ensui-dev/hidizs-ap30-docs</text>
+  <text x="1200" y="618" class="m" font-size="17" text-anchor="end">CC BY 4.0 · not affiliated with Hidizs</text>
+</svg>
