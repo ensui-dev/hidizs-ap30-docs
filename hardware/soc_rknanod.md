@@ -656,7 +656,7 @@ Collected here so nobody trips over them twice [TRM unless named]:
   boot, interrupts, DMA requests), 3 (CRU), 4 (GRF), 5 (PMU), 6 (debug), 7 (CPU), 12 (SRAM), 17-21, 26-28.
 * [DS] RKNanoD datasheet V1.8 (2022): <https://rockchip.fr/RKNanoD%20datasheet%20V1.8.pdf>; V0.1 (2015):
   <https://rockchip.fr/RKNanoD%20datasheet%20V0.1.pdf> (pin tables, packages, electrical limits).
-* [WEB] Arm: *Cortex-M3 Technical Reference Manual r2p0* (DDI0337G), <https://developer.arm.com/documentation/ddi0337/g>;
+* [WEB] Arm: *Cortex-M3 Technical Reference Manual r2p0* (DDI0337H), <https://developer.arm.com/documentation/ddi0337/h>;
   *ARMv7-M Architecture Reference Manual* (DDI0403), <https://developer.arm.com/documentation/ddi0403/latest>
   (default memory map, bit-banding, VTOR alignment, exclusive monitors, MPU option).
 * [WEB] Rockchip RKNanoD EVK hardware guide and SDK guide, as found in public SDK repositories (clock limits, SWD

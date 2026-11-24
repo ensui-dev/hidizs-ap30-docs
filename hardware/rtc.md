@@ -79,7 +79,7 @@ next boot; a lost-power RTC (VL set) with plausible values is not detected; year
 
 - [AP30] analysis of firmware V1.7.8 (RTC read / write routines, boot-time validation, software clock, date / time
   settings); board inspection (AT85163S and crystal markings).
-- [WEB] [NXP PCF8563 datasheet](https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf),
-  [NXP PCF85163 datasheet](https://www.nxp.com/docs/en/data-sheet/PCF85163.pdf); EVK V0.1 schematic (HYM8563 on
+- [WEB] [NXP PCF8563 datasheet](https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf) ([archived](https://web.archive.org/web/20261106054103/https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf)),
+  NXP PCF85163 datasheet (the part is discontinued and NXP no longer hosts the PDF; same register map in the HGSEMI PCF85163 clone, [datasheet via LCSC](https://www.lcsc.com/product-detail/C20618054.html)); EVK V0.1 schematic (HYM8563 on
   I2C0A) in public SDK copies.
 - [TRM] [RKNanoD TRM V1.0](https://rockchip.fr/Rockchip%20RKNanoD%20TRM%20V1.0.pdf) ch. 22 (I2C).

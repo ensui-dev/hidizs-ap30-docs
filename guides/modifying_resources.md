@@ -160,7 +160,7 @@ device [?].
 
 No specific tool is required; the formats are fully described in this collection. Public tools that handle the same
 container family:
-* Rockbox `utils/rknanoutils` (`rkboottool`): container parsing, <https://github.com/Rockbox/rockbox>.
+* Rockbox `utils/rknanoutils` (`rkboottool`): container parsing, <https://github.com/Rockbox/rockbox/tree/master/utils/rknanoutils/rkboottool>.
 * flame-ocean-website: a browser firmware editor for the Snowsky Echo Mini (fonts, images, themes),
   <https://github.com/losses/flame-ocean-website>.
 * Echo-Mini-Customizer (themes and resources, Echo Mini), <https://github.com/BlackVllad/Echo-Mini-Customizer>.

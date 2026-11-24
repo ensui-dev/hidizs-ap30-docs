@@ -431,7 +431,7 @@ playback flow in [audio_playback.md](../firmware/audio_playback.md).
   (ch1.1 mailbox and memory organisation, ch2 address map, interrupts, DMA requests, ch3.7 CRU, ch4 GRF, ch5 PMU, ch6.5
   debug pins, ch7 CPU, ch8 DMAC, ch12 SRAM, ch26 HIFIACC, ch27 SYNTH, ch28 IMDCT36).
 * [WEB] Arm: *ARMv7-M Architecture Reference Manual* <https://developer.arm.com/documentation/ddi0403/latest> and
-  *Cortex-M3 TRM r2p0* <https://developer.arm.com/documentation/ddi0337/g> (private SCS, exclusive monitors, write
+  *Cortex-M3 TRM r2p0* <https://developer.arm.com/documentation/ddi0337/h> (private SCS, exclusive monitors, write
   buffer and barriers, bit-banding, single-copy atomicity).
 * [WEB] Rockchip Linux kernel `drivers/mailbox/rockchip-mailbox.c`: <https://github.com/rockchip-linux/kernel>.
 * [WEB] Rockchip RKNanoD EVK documents in public SDK repositories (separate SWD header for core B); see

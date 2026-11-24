@@ -57,4 +57,4 @@ HIFIYF18.IMG (29,360,132 bytes)
 * [AP30] analysis of firmware V1.7.8 and of the factory firmware 5.0.0 (byte-identical round trip); measured on a
   device (flash dump).
 * [EVK] Rockchip RKNanoD SDK guide V1.3 and tools (origin of the format).
-* [WEB] Rockbox `rknanoutils`; community projects linked above.
+* [WEB] Rockbox [`rknanoutils`](https://github.com/Rockbox/rockbox/tree/master/utils/rknanoutils); community projects linked above.

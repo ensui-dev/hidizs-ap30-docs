@@ -196,7 +196,7 @@ it. On the AP30 it needs GPIO0_14 = 1 (switch to the RKNanoD) and a USB-C breako
   (`071b:3203`, `2207:262d`, `0bda:4a35`).
 - [TRM] [RKNanoD TRM V1.0](https://rockchip.fr/Rockchip%20RKNanoD%20TRM%20V1.0.pdf) ch. 4 (GRF), ch. 14 (USB OTG).
 - [WEB] [Igor's Lab: ALC5686](https://www.igorslab.de/ein-umfassender-einblick-in-den-alc5686-soundchip-mit-datenblatt/);
-  [rkdeveloptool](https://github.com/rockchip-linux/rkdeveloptool), [Rockusb wiki](https://opensource.rock-chips.com/wiki_Rockusb);
+  [rkdeveloptool](https://github.com/rockchip-linux/rkdeveloptool), [Rockusb wiki](https://opensource.rock-chips.com/wiki_Rockusb) ([archived copy](https://web.archive.org/web/20260503124531/https://opensource.rock-chips.com/wiki_Rockusb));
   reviews on DAC-mode limits and charging, e.g. [Moonstar Reviews](https://moonstarreviews.net/hidizs-ap30-music-boy-review/)
   (more in [../community/user_feedback.md](../community/user_feedback.md)); EVK USB switch: RKNanoD EVK schematic in
   public SDK copies.

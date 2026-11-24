@@ -683,7 +683,7 @@ Stock: gated off at boot, never used [AP30].
   (ch2-5, 8-11, 13-25 register summaries and descriptions).
 * [DS] RKNanoD datasheet V1.8 / V0.1: <https://rockchip.fr/RKNanoD%20datasheet%20V1.8.pdf>,
   <https://rockchip.fr/RKNanoD%20datasheet%20V0.1.pdf> (pin groups).
-* [WEB] Arm Cortex-M3 / ARMv7-M documentation (SysTick): <https://developer.arm.com/documentation/ddi0337/g>.
+* [WEB] Arm Cortex-M3 / ARMv7-M documentation (SysTick): <https://developer.arm.com/documentation/ddi0337/h>.
 * [WEB] Rockchip Linux kernel, `drivers/mailbox/rockchip-mailbox.c` (same mailbox register layout):
   <https://github.com/rockchip-linux/kernel>.
 * [EM] Echo Mini study `ETUDE.md` and [HIFIACC.md](https://github.com/berettavexee/echo-mini-newfw/blob/main/docs/HIFIACC.md) in

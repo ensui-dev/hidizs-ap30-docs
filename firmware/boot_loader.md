@@ -382,7 +382,7 @@ that way]. The stock image respects this (highest loaded byte 0x03082C68) [AP30]
   <https://github.com/berettavexee/echo-mini-newfw>.
 * [WEB] rkdeveloptool, <https://github.com/rockchip-linux/rkdeveloptool> (opcodes, RC4 key, device scan rules);
   Rockchip u-boot `tools/rockchip/rkcommon.c`, <https://github.com/rockchip-linux/u-boot>; Rockusb wiki,
-  <https://opensource.rock-chips.com/wiki_Rockusb>.
+  <https://opensource.rock-chips.com/wiki_Rockusb> ([archived copy](https://web.archive.org/web/20260503124531/https://opensource.rock-chips.com/wiki_Rockusb); the site is often unreachable).
 * Related pages: [startup.md](startup.md), [update_process.md](update_process.md), [usb_modes.md](usb_modes.md),
   [../formats/idb_and_flash_layout.md](../formats/idb_and_flash_layout.md), [../guides/recovery.md](../guides/recovery.md),
   [../hardware/power.md](../hardware/power.md).

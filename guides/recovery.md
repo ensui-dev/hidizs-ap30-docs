@@ -224,7 +224,7 @@ In order [AP30 advice; untested steps marked]:
   boot loader.
 * [EVK] Rockchip RKNanoD reference board guide V2.2 and schematic (upgrade key, boot order); RKNanoD SDK (loader v4.04).
 * [WEB] rkdeveloptool, <https://github.com/rockchip-linux/rkdeveloptool>; Rockusb wiki,
-  <https://opensource.rock-chips.com/wiki_Rockusb>; Echo Mini recovery procedure for comparison,
+  <https://opensource.rock-chips.com/wiki_Rockusb> ([archived copy](https://web.archive.org/web/20260503124531/https://opensource.rock-chips.com/wiki_Rockusb); the site is often unreachable); Echo Mini recovery procedure for comparison,
   <https://github.com/TheMVS/snowsky-echo-mini-recovery>.
 * Related: [../firmware/boot_loader.md](../firmware/boot_loader.md), [../firmware/usb_modes.md](../firmware/usb_modes.md),
   [backup.md](backup.md).

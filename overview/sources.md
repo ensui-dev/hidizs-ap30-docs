@@ -39,7 +39,7 @@ no external link.
 | Cirrus Logic **CS43198** DAC | datasheet DS1156F2 (Dec 2022) | [statics.cirrus.com](https://statics.cirrus.com/pubs/proDatasheet/CS43198_DS1156F2.pdf) | registers, filters, volume, DSD/DoP support of the chip (tag [DS]) |
 | Richtek **RT6863** amplifier | none public found | — | role from the Hidizs spec sheet only |
 | Realtek **ALC5686** USB audio codec | datasheet Rev 0.10 (2019), only via third-party copies | — (no official link) | describes an embedded flash; product class only |
-| NXP **PCF8563** / **PCF85163** RTC | NXP datasheets | [PCF8563](https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf), [PCF85163](https://www.nxp.com/docs/en/data-sheet/PCF85163.pdf) | register map the AP30's AnalogTek AT85163S follows (no AnalogTek datasheet found) |
+| NXP **PCF8563** / **PCF85163** RTC | NXP datasheets | [PCF8563](https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf) ([archived](https://web.archive.org/web/20261106054103/https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf)), PCF85163 (discontinued, no longer on nxp.com; HGSEMI clone [via LCSC](https://www.lcsc.com/product-detail/C20618054.html)) | register map the AP30's AnalogTek AT85163S follows (no AnalogTek datasheet found) |
 | Jadard **JD9853**-class panel controller | none located | — | the AP30 panel's init sequence fits this family [?] |
 | JieLi Bluetooth SoC | none (part code not decoded) | — | an example of a public JieLi SDK: [Jieli-Tech fw-AC63_BT_SDK](https://gitee.com/Jieli-Tech/fw-AC63_BT_SDK) (Apache-2.0), not the AP30's chip |
 
@@ -51,10 +51,10 @@ no external link.
 | rkbin | binary blobs | [github.com/rockchip-linux/rkbin](https://github.com/rockchip-linux/rkbin) | `RKBOOT/RKNANO.ini`: an empty boot-merger recipe for chip `RKNANO` (unchanged since 2013); no RKNano binaries |
 | u-boot (`next-dev`) | GPL-2.0 | [github.com/rockchip-linux/u-boot](https://github.com/rockchip-linux/u-boot) | Rockusb opcode list (`include/rockusb.h`, `f_rockusb.c`), the IDB RC4 key (`tools/rkcommon.c`), `RKNANO` in the boot merger |
 | kernel | GPL-2.0 | [github.com/rockchip-linux/kernel](https://github.com/rockchip-linux/kernel) | `drivers/mailbox/rockchip-mailbox.c`: same mailbox register layout as the RKNanoD |
-| Rockchip Rockusb wiki | — | [opensource.rock-chips.com](https://opensource.rock-chips.com/wiki_Rockusb) | MaskROM / loader background |
+| Rockchip Rockusb wiki | — | [opensource.rock-chips.com](https://opensource.rock-chips.com/wiki_Rockusb) ([archived copy](https://web.archive.org/web/20260503124531/https://opensource.rock-chips.com/wiki_Rockusb)) | MaskROM / loader background |
 | Radxa rkdeveloptool / RKDevTool guides | — | [rkdeveloptool](https://docs.radxa.com/en/zero/zero3/low-level-dev/rkdeveloptool), [RKDevTool](https://docs.radxa.com/en/zero/zero3/low-level-dev/rkdevtool) | generic usage; warnings that apply to the AP30 too (loader must match the SoC, one device at a time) |
 | RKDevTool (Windows) v2.86 / v2.96 + DriverAssistant v5.14 | proprietary | [v2.96](https://dl.radxa.com/tools/windows/RKDevTool_Release_v2.96_zh.zip), [v2.86](https://dl.radxa.com/tools/windows/RKDevTool_Release_v2.86.zip), [DriverAssistant](https://dl.radxa.com/tools/windows/DriverAssitant_v5.14.zip) | **not executed**; the program contains an RKNano device class and PID `262D`, so it is a Windows option for loader mode. Never use its erase, "upgrade firmware" or loader-download functions on the AP30 |
-| Rockbox `utils/rknanoutils` (rkboottool, rkload) | GPL-2.0+ | [git.rockbox.org](https://git.rockbox.org/cgit/rockbox.git/tree/utils/rknanoutils) | RKnanoFW container parsing (first reading of the format) |
+| Rockbox `utils/rknanoutils` (rkboottool, rkload) | GPL-2.0+ | [GitHub mirror](https://github.com/Rockbox/rockbox/tree/master/utils/rknanoutils) (git.rockbox.org needs a login) | RKnanoFW container parsing (first reading of the format) |
 
 > **Warning**
 > Rockchip tools can erase the whole flash or replace the boot loader. On the AP30 never run `rkdeveloptool ef`,
@@ -133,7 +133,7 @@ Read for [../community/user_feedback.md](../community/user_feedback.md) (2026-11
 | Pietro (Kindlefirehditaly) | mobileaudiophile | 2026-08-11 | [review](https://mobileaudiophile.com/daps/hidizs-ap30-high-res-music-player-review-pietros-take/) |
 | QuietlyAmused | mobileaudiophile | 2026-11-12 | [review](https://mobileaudiophile.com/daps/hidizs-ap30-musicboy-review-you-win-little-you-lose-some-more/) |
 | Mahir Efe Falay (editorial, no hands-on) | mobileaudiophile | 2026-06-25 | [editorial](https://mobileaudiophile.com/editorial/hidizs-ap30-music-boy-editorial-the-sansa-clip-era-has-a-new-contender/) |
-| Ichos (Petros Laskis) | ichos-reviews.com | 2026-09-16 | [review](https://ichos-reviews.com/hidizs-ap30-review/); also [Echo Nano review](https://ichos-reviews.com/fiio-snowsky-echo-nano-review/) comparing the AP30 |
+| Ichos (Petros Laskis) | ichos-reviews.com | 2026-09-16 | [review](https://ichos-reviews.com/hidizs-ap30-review/); also [Echo Nano review](https://ichos-reviews.com/fiio-snowsky-echo-nano-review/) comparing the AP30; site answers 403 Forbidden as of 2026-11-24, no archived copy |
 
 ### Head-Fi showcase reviews
 

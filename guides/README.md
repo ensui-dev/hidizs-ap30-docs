@@ -62,9 +62,9 @@ All [AP30]. Why the loader is safe from updates: [../firmware/boot_loader.md](..
 | a Rockusb client with read/write LBA and timeouts | any small program that sends Rockusb CBWs over libusb (e.g. a Python script using pyusb) | what was used for the backup and restore on the device; needs: per-command timeouts, at most 16 sectors per read, read-back after each write chunk, 528-byte replies for READ_SECTOR |
 | a SCSI pass-through tool | e.g. `sg_raw` from sg3_utils on Linux | to send the vendor command that reboots the stock firmware into loader mode (untested path) |
 | RKDevTool (Windows) | Rockchip's Windows GUI; contains an RKNano device class and knows PID 262D | not tested on the AP30; never use its erase, "upgrade firmware" or loader-download functions |
-| Rockbox `rknanoutils` (`rkboottool`) | parses the RKnanoFW container, <https://github.com/Rockbox/rockbox> | for reading image files on a PC |
+| Rockbox `rknanoutils` (`rkboottool`) | parses the RKnanoFW container, <https://github.com/Rockbox/rockbox/tree/master/utils/rknanoutils/rkboottool> | for reading image files on a PC |
 
-Background on Rockusb: <https://opensource.rock-chips.com/wiki_Rockusb>.
+Background on Rockusb: <https://opensource.rock-chips.com/wiki_Rockusb> ([archived copy](https://web.archive.org/web/20260503124531/https://opensource.rock-chips.com/wiki_Rockusb); the site is often unreachable).
 
 ## Sources
 

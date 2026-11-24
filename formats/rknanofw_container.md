@@ -197,7 +197,7 @@ known [?].
 ## Sources
 
 * [AP30] analysis of firmware V1.7.8 and 5.0.0 (byte-identical unpack/repack); measured on a device (slot reads).
-* [WEB] Rockbox `utils/rknanoutils/rkboottool.c`, <https://github.com/Rockbox/rockbox>.
+* [WEB] Rockbox `utils/rknanoutils/rkboottool`, <https://github.com/Rockbox/rockbox/tree/master/utils/rknanoutils/rkboottool>.
 * [EVK] Rockchip RKNanoD SDK guide V1.3; SDK factory-tool sample image.
 * Related: [stage3_sections.md](stage3_sections.md), [idb_and_flash_layout.md](idb_and_flash_layout.md),
   [../guides/installing_firmware.md](../guides/installing_firmware.md).

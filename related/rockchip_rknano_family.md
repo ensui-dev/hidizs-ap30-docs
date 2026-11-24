@@ -175,5 +175,5 @@ The boot loader lives in the flash's hidden IDB area and is never part of an upd
 * [WEB] [rockchip-linux/rkdeveloptool](https://github.com/rockchip-linux/rkdeveloptool),
   [rockchip-linux/rkbin](https://github.com/rockchip-linux/rkbin), [rockchip-linux/u-boot](https://github.com/rockchip-linux/u-boot),
   [rockchip-linux/kernel](https://github.com/rockchip-linux/kernel), [Qiita: RKNanoD notes](https://qiita.com/eggman/items/7822981acba166469e49),
-  [Rockbox rknanoutils](https://git.rockbox.org/cgit/rockbox.git/tree/utils/rknanoutils).
+  [Rockbox rknanoutils](https://github.com/Rockbox/rockbox/tree/master/utils/rknanoutils).
 * [?] structure of Rockchip's SDK copies, described in our own words only (not linked).

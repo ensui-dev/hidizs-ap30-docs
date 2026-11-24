@@ -336,4 +336,4 @@ lower 16 bits change. Example: writing 0xFFFF18AF to `PMU_SYS_REG3` sets all 16 
 * [EM] the Echo Mini studies listed in [../related/community_projects.md](../related/community_projects.md).
 * [WEB] reviews summarised in [../community/user_feedback.md](../community/user_feedback.md);
   [rockchip-linux/rkdeveloptool](https://github.com/rockchip-linux/rkdeveloptool),
-  [Rockchip Rockusb wiki](https://opensource.rock-chips.com/wiki_Rockusb).
+  [Rockchip Rockusb wiki](https://opensource.rock-chips.com/wiki_Rockusb) ([archived copy](https://web.archive.org/web/20260503124531/https://opensource.rock-chips.com/wiki_Rockusb)).
