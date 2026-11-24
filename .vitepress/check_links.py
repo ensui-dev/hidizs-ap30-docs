@@ -8,7 +8,7 @@ Usage: python3 -I .vitepress/check_links.py [dist-dir] [base]
 import glob, html, os, posixpath, re, sys
 
 dist = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), 'dist')
-base = sys.argv[2] if len(sys.argv) > 2 else '/hidizs-ap30-docs/'
+base = sys.argv[2] if len(sys.argv) > 2 else os.environ.get('DOCS_BASE', '/')
 
 def url_of(f):
     u = base + f[:-5]
@@ -34,7 +34,7 @@ for f in glob.glob('**/*.html', recursive=True):
         elif path.startswith('/'):
             target = path
         else:
-            here = me if me.endswith('/') else posixpath.dirname(me) + '/'
+            here = me if me.endswith('/') else posixpath.dirname(me).rstrip('/') + '/'
             target = posixpath.normpath(posixpath.join(here, path))
         total += 1
         ids = next((pages[c] for c in (target, target.rstrip('/'), target.rstrip('/') + '/')

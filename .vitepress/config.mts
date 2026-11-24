@@ -10,6 +10,10 @@ import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = 'https://github.com/ensui-dev/hidizs-ap30-docs'
+// Public address of the site (GitHub Pages custom domain now, the same subdomain on DevForge later).
+// DOCS_SITE / DOCS_BASE override it, e.g. DOCS_BASE=/hidizs-ap30-docs/ for a build without the custom domain.
+const site = (process.env.DOCS_SITE ?? 'https://ap30.ensui.dev').replace(/\/$/, '')
+const base = process.env.DOCS_BASE ?? '/'
 
 // Section order and page order come from the "Layout" block in README.md, so the README stays
 // the single place that defines the structure.
@@ -67,8 +71,9 @@ export default defineConfig({
   lang: 'en',
   title: 'hidizs-ap30-docs',
   description: 'Unofficial, open documentation of the Hidizs AP30: hardware, firmware, formats, recovery.',
-  base: '/hidizs-ap30-docs/',
+  base,
   cleanUrls: true,
+  sitemap: { hostname: `${site}${base}` },
   lastUpdated: true,
   srcExclude: ['LICENSES/**', '.github/**', 'node_modules/**'],
   rewrites: {
@@ -76,7 +81,7 @@ export default defineConfig({
     ':dir/README.md': ':dir/index.md',
   },
   head: [
-    ['meta', { property: 'og:image', content: 'https://ensui-dev.github.io/hidizs-ap30-docs/social-preview.png' }],
+    ['meta', { property: 'og:image', content: `${site}${base}social-preview.png` }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
   ],
   markdown: {

@@ -2,6 +2,8 @@
 
 Unofficial, open documentation of the **Hidizs AP30**: hardware, firmware, formats, recovery.
 
+**Read it online: [ap30.ensui.dev](https://ap30.ensui.dev)** (search, sidebar, dark mode), or browse the Markdown here.
+
 Everything known about the **Hidizs AP30 "Music Boy"** digital audio player: its hardware, the chips on its board,
 the vendor ("HidizsOS") firmware, its file formats, its boot and recovery paths, its bugs, and related devices and
 projects. It is the result of independent analysis of the official firmware images and of the device itself,
