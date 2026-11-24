@@ -1,0 +1,16 @@
+hidizs-ap30-docs: unofficial, open documentation of the Hidizs AP30
+Copyright (c) the hidizs-ap30-docs contributors
+
+Text, diagrams and page structure: Creative Commons Attribution 4.0 International
+(CC BY 4.0), full text in LICENSES/CC-BY-4.0.txt, https://creativecommons.org/licenses/by/4.0/
+
+Data tables (register, pin, command, format and measurement tables) and code snippets:
+CC0 1.0 Universal (public domain dedication), full text in LICENSES/CC0-1.0.txt,
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Attribution for CC BY 4.0 reuse: "hidizs-ap30-docs, the hidizs-ap30-docs contributors,
+CC BY 4.0", with a link to the source and a note if you changed it.
+
+Facts themselves (addresses, values, behaviour) are not subject to copyright and may be
+used freely. Product names and trademarks belong to their owners; this project is not
+affiliated with Hidizs, Rockchip, Cirrus Logic, Richtek, Realtek or JieLi.
