@@ -1,0 +1,4 @@
+/* SPDX-License-Identifier: CC0-1.0 */
+/* Photos: keep close-ups to a readable size; board overviews may be taller. */
+.vp-doc img { display: block; margin: 0 auto; max-height: 30rem; width: auto; max-width: 100%; }
+.vp-doc img[src*="annotated"] { max-height: 56rem; }

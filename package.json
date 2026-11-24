@@ -1,0 +1,15 @@
+{
+  "name": "hidizs-ap30-docs",
+  "private": true,
+  "type": "module",
+  "license": "CC-BY-4.0",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "github-slugger": "2.0.0",
+    "vitepress": "1.6.4"
+  }
+}
