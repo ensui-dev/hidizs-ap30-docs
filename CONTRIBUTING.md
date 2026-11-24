@@ -12,6 +12,29 @@ Corrections, measurements and new findings about the Hidizs AP30 are welcome.
 | a player that won't boot | Discussions: **Recovery** (read [guides/recovery.md](guides/recovery.md) first) |
 | a ready-made change to a page | a pull request |
 
+## Labels
+Issues and discussions are sorted with these labels. The forms add the first five automatically; maintainers add
+the rest.
+
+| Label | Colour | Meaning |
+|---|---|---|
+| `correction` | `#d73a4a` | Something in the docs is wrong, outdated or unclear |
+| `missing` | `#fbca04` | Topic or detail the docs don't cover yet |
+| `finding` | `#0075ca` | New measurement, observation or result about the AP30 |
+| `question` | `#d876e3` | How does something on the AP30 or in its firmware work? |
+| `recovery` | `#e99695` | Help with a player that won't boot or needs restoring |
+| `needs-evidence` | `#c5def5` | Claim needs a source, measurement or firmware version before it goes in |
+| `device-test` | `#5319e7` | Needs checking on a real AP30 (measurement, photo, behaviour) |
+| `safety` | `#b60205` | Affects a procedure that writes to the player; review with extra care |
+| `help wanted` | `#008672` | Needs someone with the right tool, skill or device to answer |
+| `good first issue` | `#7057ff` | Small fix, good for a first contribution |
+| `accessibility` | `#f143ab` | Barrier affecting people with disabilities |
+| `duplicate` | `#cfd3d7` | Already reported or discussed elsewhere |
+| `invalid` | `#e4e669` | Not about the AP30, or not reproducible |
+| `wontfix` | `#ffffff` | Out of scope, or would break the docs' rules (vendor code, personal data, binaries) |
+
+A firmware bug in the AP30 itself is a `finding`; an error in these docs is a `correction`.
+
 ## Rules for content (same as the [README](README.md#rules-for-this-collection))
 * **Provenance tag on every claim:** [AP30] confirmed on the device or in its firmware (name the version),
   [TRM] / [DS] chip documentation, [EVK] Rockchip reference-board documents, [EM] Snowsky Echo Mini only,
