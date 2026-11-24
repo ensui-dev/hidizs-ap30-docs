@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question
+    url: https://github.com/ensui-dev/hidizs-ap30-docs/discussions/new?category=q-a
+    about: Ask how something works.
+  - name: New finding or measurement
+    url: https://github.com/ensui-dev/hidizs-ap30-docs/discussions/new?category=findings
+    about: Share something new about the AP30.
+  - name: Player won't boot / recovery help
+    url: https://github.com/ensui-dev/hidizs-ap30-docs/discussions/new?category=recovery
+    about: Get help with a player that doesn't start.

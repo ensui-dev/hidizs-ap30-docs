@@ -1,0 +1,32 @@
+name: Correction
+description: Something in the docs is wrong, outdated or unclear.
+labels: ["correction"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Path or link (e.g. hardware/power.md)
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong
+      description: Quote the sentence or table row.
+    validations:
+      required: true
+  - type: textarea
+    id: right
+    attributes:
+      label: What it should say, and your evidence
+      description: Measurement, datasheet section, firmware version, link to a public source.
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Licence
+      options:
+        - label: I agree that my text may be added to the docs under CC BY 4.0, and data tables under CC0 1.0.
+          required: true

@@ -1,0 +1,58 @@
+title: "[Finding] "
+labels: ["finding"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share something new about the AP30: a measurement, a board observation, a log, a behaviour you can reproduce.
+        Please don't attach firmware images, full flash backups or anything with personal data.
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      description: Which part of the player? (e.g. DAC output level, battery, boot loader, key ladder)
+    validations:
+      required: true
+  - type: textarea
+    id: finding
+    attributes:
+      label: What you found
+      description: Describe it in your own words. Tables and numbers welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: How you found it
+      description: Tools, measurement setup, steps to reproduce.
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware version
+      description: Settings → About (e.g. V1.7.8), or "not applicable"
+    validations:
+      required: true
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: Confidence
+      options:
+        - Measured / reproduced
+        - Observed once
+        - Hypothesis
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Related page (optional)
+      description: The docs page this belongs on, if you know it.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Licence
+      options:
+        - label: I agree that text from this post may be added to the docs under CC BY 4.0, and data tables under CC0 1.0.
+          required: true

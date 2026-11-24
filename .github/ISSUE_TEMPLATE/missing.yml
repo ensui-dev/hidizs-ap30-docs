@@ -1,0 +1,19 @@
+name: Missing information
+description: A topic the docs don't cover yet, or a page that needs more detail.
+labels: ["missing"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What is missing
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where you expected to find it
+  - type: textarea
+    id: known
+    attributes:
+      label: Anything you already know about it (optional)
+      description: Public sources, measurements, observations.

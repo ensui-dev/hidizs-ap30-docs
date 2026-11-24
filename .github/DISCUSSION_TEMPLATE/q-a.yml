@@ -1,0 +1,23 @@
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [README](https://github.com/ensui-dev/hidizs-ap30-docs#how-to-navigate) and the
+        [glossary](https://github.com/ensui-dev/hidizs-ap30-docs/blob/main/overview/glossary.md) first.
+        For a player that won't boot, use the **Recovery** category instead.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: What you already checked
+      description: Pages you read, things you tried.
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware version (if relevant)

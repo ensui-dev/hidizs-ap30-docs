@@ -1,0 +1,42 @@
+title: "[Recovery] "
+labels: ["recovery"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Sorry your player is in trouble. First read the
+        [recovery guide](https://github.com/ensui-dev/hidizs-ap30-docs/blob/main/guides/recovery.md).
+        **Don't write anything to the player** until you've read its safety rules: never erase the flash, never write
+        outside the firmware slots, never load a random loader.
+        Don't upload backups or firmware images here; they can contain your personal files.
+  - type: textarea
+    id: symptoms
+    attributes:
+      label: What happens
+      description: Screen, backlight, sounds, what happens with the Power key held ~8 s.
+    validations:
+      required: true
+  - type: textarea
+    id: before
+    attributes:
+      label: What happened before
+      description: Update, custom image, battery ran flat, a drop...
+    validations:
+      required: true
+  - type: textarea
+    id: usb
+    attributes:
+      label: What the computer sees
+      description: Output of `lsusb` (Linux/macOS) or Device Manager (Windows) with the player connected, normally and with D-pad Right + Power held.
+  - type: input
+    id: firmware
+    attributes:
+      label: Last firmware version that worked
+  - type: dropdown
+    id: backup
+    attributes:
+      label: Do you have a backup of your player's flash?
+      options:
+        - "Yes"
+        - "No"
+        - Not sure
