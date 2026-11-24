@@ -10,13 +10,19 @@ software; it writes the chip only when the user sets the clock, on a factory res
 Tags: **[AP30]** firmware V1.7.8 or the device · **[TRM]** RKNanoD TRM V1.0 · **[DS]** a datasheet · **[EM]** Echo Mini · **[WEB]**
 public source · **[?]** guess.
 
+![Small 8-lead chip printed AnalogTek AT85163S next to a metal-can crystal marked AQQT.](../images/parts/at85163s-rtc.jpg)
+
+*AnalogTek AT85163S real-time clock (8-pin MSOP) and its 2-pad crystal (marked AQQT; 32.768 kHz by position [?]), side A, right of the storage chip. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Summary
 
 | Item | Value | Tag |
 |---|---|---|
 | Part | AnalogTek `AT85163S`, 8-pin MSOP, board side A right of the storage chip | [AP30] marking |
 | Datasheet | no AnalogTek datasheet found; the number follows NXP's **PCF85163** (a PCF8563 variant with the same register map and address) | [?] |
-| Crystal | 2-pad SMD crystal next to it (marking `AQQT` / `T53F`), 32.768 kHz by its position | [AP30], frequency [?] |
+| Crystal | 2-pad SMD crystal next to it (marking `AQQT`), 32.768 kHz by its position | [AP30], frequency [?] |
 | Bus | I2C0 (base 0x40040000, IRQ 31), route A: SCL **GPIO2_10** (GPIO2_B2, ball D5), SDA **GPIO2_11** (GPIO2_B3, ball E5) | [AP30] |
 | Address | 8-bit **0xA2** (write) / 0xA3 (read) = 7-bit 0x51 | [AP30] |
 | Speed | the firmware opens the bus at 100 for writes and 200 for reads (unit assumed kHz) | [AP30], unit [?] |

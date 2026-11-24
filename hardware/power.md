@@ -16,6 +16,12 @@ Tags: **[AP30]** firmware V1.7.8 or the device · **[TRM]** RKNanoD TRM V1.0 · 
 Mini · **[WEB]** public source (Rockchip reference-board documents in public SDK copies cited as "[WEB] EVK") ·
 **[?]** guess.
 
+![Silver pouch battery cell printed 923033 3.8V 1200mAh and 4.56Wh.](../images/other/battery-label.jpg)
+
+*Battery: 923033 3.8V 1200mAh, 4.56 Wh Li-po. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Summary](#summary)
@@ -155,7 +161,7 @@ The Echo Mini community firmware also shuts down below 3450 mV [EM]. Reviewer ba
 
 | Item | Value | Tag |
 |---|---|---|
-| Charger IC | not identified. Candidates: `DP1 165` (leadless, power inductor beside it, side A right edge: a switching charger if so) or one of the SOT-23 parts `06T2` / `S2ZQ` / `70562?` | [AP30], identity [?] |
+| Charger IC | not identified. Candidates: `DP1 165` (leadless, power inductor beside it, side A right edge: a switching charger if so) or one of the SOT-23 parts `06T2` / `S2ZQ` / `705628` | [AP30], identity [?] |
 | "Full" status | GPIO2_3 (ball B1), input with pull, high = full; sampled every 5 s, more than 20 consecutive highs (≈ 100 s) → "full" | [AP30] |
 | Charge control | GPIO1_0 (ball G1, also the I2S1A MCLK pin) driven high when a charger / host is attached, held low in USB DAC mode | [AP30], role [?] |
 | Charge current / termination | no firmware control: the charge-current setter only stores a value, the charge hooks are empty; the charger sets its own current | [AP30] |

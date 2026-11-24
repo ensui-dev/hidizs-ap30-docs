@@ -2,7 +2,7 @@
 
 Status: draft, 2026-11
 
-Bluetooth on the AP30 is a separate **JieLi** SoC (QFN-32, marked `FP00115-56C4`) with its own Bluetooth stack and
+Bluetooth on the AP30 is a separate **JieLi** SoC (QFN-32, marking ending in `-56C4`, probably an AC6956C4 [?]) with its own Bluetooth stack and
 firmware, soldered directly on the board (not a certified module). The RKNanoD switches it on with **GPIO2_7** and
 talks to it over **UART1A at 115200 8N1** with a short **ASCII protocol whose frames start with `C`**: scan,
 connect, disconnect, status poll, stream start / stop; the chip answers with readiness, scan results, link state and
@@ -14,6 +14,12 @@ the hardware and the wire protocol; the firmware's Bluetooth logic is in
 
 Tags: **[AP30]** firmware V1.7.8 or the device · **[TRM]** RKNanoD TRM V1.0 · **[DS]** a datasheet · **[EM]** Echo
 Mini (EchoPod notes) · **[WEB]** public source · **[?]** guess.
+
+![Square chip with the JL logo and a marking ending in -56C4, a 24.000 MHz crystal to the right and a gold coax crimp tab at the bottom.](../images/parts/jieli-bt.jpg)
+
+*JieLi Bluetooth SoC (QFN-32, JL logo, marking ends in -56C4: by JieLi's marking convention probably an AC6956C4 [?]) with its 24.000 MHz crystal and the coax pigtail's crimp tab, side B, top-left corner (jacks-at-bottom view). [AP30]*
+
+More photos: [photos.md](photos.md).
 
 ## Contents
 
@@ -33,7 +39,7 @@ Mini (EchoPod notes) · **[WEB]** public source · **[?]** guess.
 
 | Item | Value | Tag |
 |---|---|---|
-| Chip | JieLi (JL logo), QFN-32, marking `FP00115-56C4`; part number not decoded | [AP30] |
+| Chip | JieLi (JL logo), QFN-32, marking `…-56C4` (serial number before the dash). JieLi [puts the chip name after the dash](https://kagaimiq.github.io/jielie/chips/chip-marks.html): `56C4` → **AC6956C4** (AC695N family) is the likely reading | [AP30] marking, [WEB, ?] name |
 | Crystal | own 24.000 MHz | [AP30] |
 | Antenna | FPC sticker `B_1597-2.4G_A1` on the back cover, coax pigtail with its crimp tab soldered to a board pad (no U.FL socket) | [AP30] |
 | Position | board side B, top edge (opposite the jacks) | [AP30] |
@@ -174,7 +180,7 @@ a paired-device list of 0x26-byte entries (6-byte address + 32-byte UTF-8 name) 
 
 | Question | How it could be answered |
 |---|---|
-| JieLi part number and capabilities (sink, AAC) | decode `FP00115-56C4`; read the chip ID over its programming interface if found |
+| JieLi part number and capabilities (sink, AAC) | confirm AC6956C4 (`-56C4`); read the chip ID over its programming interface if found |
 | Where the JieLi takes its audio (DAC out, amp out, before or after volume); does it have an output wired anywhere | continuity from its analog pins to the CS43198 / RT6863 / jacks |
 | Meaning of the `CY0` byte (0x14 here, 0x1E on the Echo Mini), `CC00`, `CH06` vs `CL06`, `CKKK`, `CD` / `CU` / `CM` | capture both UART lines at 115200 while scanning, pairing, playing, pausing and using headphone buttons |
 | PIN / passkey pairing support | same capture with a device that asks for a PIN |

@@ -14,6 +14,16 @@ the byte-level flash layout is owned by
 Tags: **[AP30]** firmware V1.7.8 or the device · **[TRM]** RKNanoD TRM V1.0 · **[DS]** a datasheet · **[EM]** Echo
 Mini · **[WEB]** public source · **[?]** guess or estimate.
 
+![Black rectangular chip with a stylised logo and the text TM3F4GUAI.](../images/parts/tm3f4guai.jpg)
+
+*Storage chip TM3F4GUAI, an 8-pad LGA (SD-NAND style [?]), side A, top edge right of the empty BGA footprint. [AP30]*
+
+![Metal microSD card slot soldered at the board edge.](../images/parts/microsd.jpg)
+
+*microSD slot (metal), side B, wheel / microSD edge. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Summary](#summary)

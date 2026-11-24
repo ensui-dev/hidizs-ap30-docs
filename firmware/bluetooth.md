@@ -196,7 +196,7 @@ Both are frequent user requests; see [community/user_feedback.md](../community/u
 
 ## Open questions
 
-* JieLi part number (marking `FP00115-56C4`) and capabilities.
+* JieLi part number (marking `…-56C4`, probably AC6956C4 [?]) and capabilities.
 * Meaning of the `CY0` byte, of `CC00`, `CKKK`, `CD` / `CU` / `CM`, and the `CL06` / `CH06` difference.
 * PIN / passkey pairing support.
 * Where the JieLi audio input is tapped (DAC output, amplifier), and whether the wired outputs are muted.

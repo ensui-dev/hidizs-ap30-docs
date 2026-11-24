@@ -209,6 +209,12 @@ In order [AP30 advice; untested steps marked]:
 > **Warning:** step 4 is board-level work on a part without a schematic. A slip can damage the SoC or the flash for
 > good. It is only for a player that is already dead, never to "check" something.
 
+![Dark board area with small round pads labelled CLK, G, G and TX, and red, black and white battery wires at the top.](../images/parts/test-pads-tx-clk.jpg)
+
+*Test pads on side B, jacks-at-bottom view: CLK and G pair below the BAT+ pad, a single G, and the solid copper TX pad with a surface trace; battery wires BAT+/BAT-/NTC at the top. [AP30]*
+
+The pads are described in [../hardware/board_ap30.md § Test pads](../hardware/board_ap30.md#test-pads).
+
 ## Open questions
 
 * Does the software entry (marker `0x18AF`) reach high-speed loader mode?

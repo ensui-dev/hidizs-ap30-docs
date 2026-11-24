@@ -13,6 +13,12 @@ core, the mailbox and the audio accelerators in [dual_core.md](dual_core.md); ho
 "Core A" below is the TRM's *sys-core* / core 0 / "MCU core"; "core B" is the TRM's *cal-core* (calculation core) /
 core 1 / "MPU core". The TRM's "MPU core" means core B, **not** a memory protection unit.
 
+![Square black chip printed Rockchip RKNANOD-G, with a row of small capacitors below and a 24.000 MHz crystal at the lower left.](../images/parts/rknanod-g.jpg)
+
+*Rockchip RKNanoD-G (LFBGA121), side A, upper left of centre; the SoC's 24.000 MHz crystal sits below it. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Identification and package](#identification-and-package)

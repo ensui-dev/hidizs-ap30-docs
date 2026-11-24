@@ -41,6 +41,7 @@ hardware/
   soc_peripherals.md         per-peripheral register-level notes (CRU, GRF, PMU, timers, WDT, GPIO, ADC, PWM, DMA, I2C, I2S, UART, SD/MMC, VOP, USB, mailbox)
   dual_core.md               the two Cortex-M3 cores, core-B start/stop, mailbox, shared RAM, accelerators
   board_ap30.md              the AP30 board: pin assignment table, power tree, battery, test pads, chip markings
+  photos.md                  teardown photos: annotated board overviews and a close-up of every part
   audio_dac_cs43198.md       Cirrus Logic CS43198: interface, init, registers, filters, gain, volume
   audio_amp_rt6863.md        Richtek RT6863 and the output stage, headphone jacks
   display.md                 panel, controller, init sequence, VOP interface, backlight
@@ -86,6 +87,7 @@ related/
   community_projects.md      other projects on the AP30 / Echo Mini, what each found
 community/
   user_feedback.md           what owners report: pain points and wishes, counted per source
+images/                      teardown photos used by the pages (board/, parts/, other/)
 ```
 
 ## Rules for this collection

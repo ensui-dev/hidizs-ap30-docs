@@ -93,11 +93,11 @@ Part identifications from the package markings of an opened retail unit [AP30]; 
 | Headphone amplifier | Richtek **RT6863** (marked `6863D`) | QFN, 12-16 leads | [AP30] marking + vendor spec [WEB] |
 | Internal storage | marked **`TM3F4GUAI`** (logo "TM"), Titan Micro TM3F SD-NAND family [?] | 8-pad LGA, ~6×8 mm | marking [AP30], vendor [?] |
 | USB-audio chip (DAC mode) | Realtek **ALC5686** | QFN-48 | [AP30] marking + USB IDs |
-| Bluetooth | **JieLi** SoC marked `FP00115-56C4` (part number not decoded) | QFN-32 | [AP30] marking |
+| Bluetooth | **JieLi** SoC marked `…-56C4` (probably AC6956C4 [?]) | QFN-32 | [AP30] marking |
 | RTC | AnalogTek **AT85163S** (PCF85163-style numbering [?]) | 8-pin MSOP | [AP30] marking |
 | USB / signal switch | marked `7227` (WillSemi WAS7227Q / FSW7227 family of DPDT switches [?]) | 10-lead leadless | [?] |
 | Crystals | 24.000 MHz (SoC), 24.576 MHz (DAC), 24.000 MHz (ALC5686), 24.000 MHz (JieLi), 2-pad RTC crystal | SMD | [AP30] markings; RTC frequency [?] |
-| Power parts | `DP1 165`, `06T2`, `S2ZQ`, `70562?`, `D00HAV` ×2, `AFCP`, `SL` diodes | various | not identified, see [board_ap30.md](board_ap30.md) |
+| Power parts | `DP1 165`, `06T2`, `S2ZQ`, `705628`, `D00HAV` ×2, `AFCP` (AO3415-type P-MOSFET [?]), `SL` diodes | various | mostly not identified, see [board_ap30.md](board_ap30.md) |
 
 Full list with packages, positions and the unidentified parts: [board_ap30.md § Chips](board_ap30.md#chips-and-markings).
 
@@ -109,6 +109,7 @@ Full list with packages, positions and the unidentified parts: [board_ap30.md §
 | [soc_peripherals.md](soc_peripherals.md) | register-level notes per SoC peripheral (CRU, GRF, PMU, timers, WDT, GPIO, ADC, PWM, DMA, I2C, I2S, UART, SD/MMC, VOP, USB, mailbox) |
 | [dual_core.md](dual_core.md) | the two Cortex-M3 cores, core-B start/stop, mailbox, shared RAM, accelerators |
 | [board_ap30.md](board_ap30.md) | the AP30 board: complete pin assignment table, power tree, test pads, chip markings, unknowns |
+| [photos.md](photos.md) | teardown photos: annotated board overviews, a close-up of every chip, connector and test-pad area |
 | [audio_dac_cs43198.md](audio_dac_cs43198.md) | CS43198: I2C control, init sequence, registers, filters (incl. NOS), gain, volume, clocks, sample rates, DSD |
 | [audio_amp_rt6863.md](audio_amp_rt6863.md) | RT6863 and the output stage, the two jacks, mute / enable lines, output power |
 | [display.md](display.md) | panel geometry, controller class, init sequence, VOP i8080 interface, backlight |

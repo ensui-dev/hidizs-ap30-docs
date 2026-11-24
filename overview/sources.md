@@ -41,7 +41,9 @@ no external link.
 | Realtek **ALC5686** USB audio codec | datasheet Rev 0.10 (2019), only via third-party copies | — (no official link) | describes an embedded flash; product class only |
 | NXP **PCF8563** / **PCF85163** RTC | NXP datasheets | [PCF8563](https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf) ([archived](https://web.archive.org/web/20261106054103/https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf)), PCF85163 (discontinued, no longer on nxp.com; HGSEMI clone [via LCSC](https://www.lcsc.com/product-detail/C20618054.html)) | register map the AP30's AnalogTek AT85163S follows (no AnalogTek datasheet found) |
 | Jadard **JD9853**-class panel controller | none located | — | the AP30 panel's init sequence fits this family [?] |
-| JieLi Bluetooth SoC | none (part code not decoded) | — | an example of a public JieLi SDK: [Jieli-Tech fw-AC63_BT_SDK](https://gitee.com/Jieli-Tech/fw-AC63_BT_SDK) (Apache-2.0), not the AP30's chip |
+| JieLi Bluetooth SoC | probably **AC6956C4** (marking suffix `-56C4`) [?]: datasheet copy at LCSC | [AC6956C4 at LCSC](https://www.lcsc.com/product-detail/Microcontroller-Units-MCUs-MPUs-SOCs_JieLi-Tech-AC6956C4_C5339900.html); marking convention: [kagaimiq/jielie "chip marks"](https://kagaimiq.github.io/jielie/chips/chip-marks.html) | an example of a public JieLi SDK: [Jieli-Tech fw-AC63_BT_SDK](https://gitee.com/Jieli-Tech/fw-AC63_BT_SDK) (Apache-2.0), for another JieLi family |
+| Alpha & Omega **AO3415** P-MOSFET (`AFCP` part) [?] | AOS datasheet and marking description PD-00120 | [datasheet](https://www.aosmd.com/sites/default/files/res/datasheets/AO3415.pdf), [marking](https://www.aosmd.com/sites/default/files/res/markings/AO3415.pdf) | `AF` = AO3415 product code; the AP30 part may be a second source |
+| Will Semiconductor **WSP6580Q** audio switch (`A80Q` part) [?] | distributor listing (datasheet not fetched) | [LCSC C2941901](https://www.lcsc.com/product-detail/Analog-Switches-Multiplexers_WILLSEMI-Will-Semicon-WSP6580Q-16-TR_C2941901.html) | candidate only: name and 16-lead QFN fit the marking |
 
 ## Rockchip tools and repositories
 

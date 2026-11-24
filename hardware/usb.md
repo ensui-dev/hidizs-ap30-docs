@@ -13,6 +13,16 @@ DAC mode is limited to 24-bit / 48 kHz. This page covers the hardware side; the 
 Tags: **[AP30]** firmware V1.7.8 or the device · **[TRM]** RKNanoD TRM V1.0 · **[DS]** a datasheet · **[EM]** Echo
 Mini · **[WEB]** public source · **[?]** guess.
 
+![Square chip printed ALC5686, with a 24.000 MHz crystal to its right.](../images/parts/alc5686.jpg)
+
+*Realtek ALC5686 (QFN-48), the USB-DAC-mode chip (0bda:4a35), side A, lower left, with its 24.000 MHz crystal. [AP30]*
+
+![Metal USB-C socket seen from above with its solder pins, next to small parts.](../images/parts/usb-c.jpg)
+
+*USB-C receptacle (16-pin SMD), side B, between the two jacks; mBJ3H and the 6-bump part beside it. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Summary](#summary)

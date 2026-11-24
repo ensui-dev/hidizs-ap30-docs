@@ -41,6 +41,15 @@ reference-board documents from public SDK copies are cited as "[WEB] EVK") · **
 The Snowsky Echo Mini runs on the same SoC and a shared firmware code base, but its board differs (two CS43131 DACs,
 a 320×170 panel) [EM]; see [../related/snowsky_echo_mini.md](../related/snowsky_echo_mini.md).
 
+![Side A of the board with numbered callouts on the main parts.](../images/board/side-a-annotated.jpg)
+
+*Side A (screen side), jacks at the bottom [AP30]. Callout legend: [photos.md § Side A](photos.md#side-a-screen-side).*
+
+![Side B of the board with numbered callouts on the main parts.](../images/board/side-b-annotated.jpg)
+
+*Side B (battery side), jacks at the bottom [AP30]. Callout legend: [photos.md § Side B](photos.md#side-b-battery-side).
+Close-ups of every part: [photos.md](photos.md).*
+
 ## Pin assignment table
 
 Every SoC pin the stock firmware configures, with its role on the AP30. Ball numbers are for the LFBGA121 package
@@ -155,14 +164,14 @@ behaviour [AP30] and the parts seen on the board; the identities of the regulato
                     │                          │ + protection PCB      │ wires to pads BAT+ (red), BAT- (black),
                     │                          └──────────┬───────────┘  NTC (white)
                     │                                     │
-                    │                       battery path: "AFCP" SOT-23 (P-MOSFET or diode [?]),
+                    │                       battery path: "AFCP" SOT-23 (AO3415-type P-MOSFET [?]),
                     │                       "SL" SOD-123 Schottky diodes [?]
                     │                                     │
                     ▼                                     ▼
         ┌──────────────────────────────────────────────────────────────┐
         │ system regulators (discrete): "06T2" SOT-23-6 + inductor     │
         │ (buck [?]), "D00HAV" SOT-23-5 ×2 (LDO [?]), "S2ZQ" SOT-23-5,  │
-        │ "70562?" 8-lead [?]                                            │
+        │ "705628" 8-lead [?]                                            │
         │ enable = PLAYON  OR  POWERHOLD  OR  VBUS   (diode-OR)          │
         └───────┬──────────────────┬───────────────────┬────────────────┘
                 │                  │                   │
@@ -201,6 +210,14 @@ there is no pin-header footprint and no pad on any board edge.
 | `SCL`, `SDA`, `VDD` | A | below the encoder; SDA and SCL in a column left of an unmarked 8-lead part | round gold, undrilled | an I2C bus, perhaps to that 8-lead part (EEPROM?) [?]; no visible trace joins the pads to its pins |
 | (unlabelled) | A | a pair of round pads next to the ALC5686; oval solder-coated pads, single and in rows of three, near the tact switches | | unknown [?] |
 
+![Dark board area with small round pads labelled CLK, G, G and TX, and red, black and white battery wires at the top.](../images/parts/test-pads-tx-clk.jpg)
+
+*Test pads on side B, jacks-at-bottom view: CLK and G pair below the BAT+ pad, a single G, and the solid copper TX pad with a surface trace; battery wires BAT+/BAT-/NTC at the top. [AP30]*
+
+![Round gold pads labelled SCL, SDA and VDD beside a small black chip.](../images/parts/test-pads-scl-sda.jpg)
+
+*SCL, SDA and VDD pads on side A, below the encoder, next to the unmarked 8-lead part. [AP30]*
+
 Cheapest checks (power off unless stated): continuity `TX` → SoC ball D2 / the JieLi's RX pin, `CLK` → the CLK ball
 of the empty BGA footprint; or, with power, a 3.3 V USB-UART receiving on `TX` + `G` at 115200 during a boot (a
 banner confirms the loader console). The loader banner contains lines such as "Boot Release Time", `BootDevType=`
@@ -215,7 +232,7 @@ and `IDBAddr=` [AP30]; see [../firmware/boot_loader.md](../firmware/boot_loader.
 
 ## Chips and markings
 
-Read from the packages of an opened retail unit [AP30]. Lot and date codes are omitted. Positions use the
+Read from the packages of an opened retail unit [AP30]; photos of each part in [photos.md](photos.md). Lot and date codes are omitted. Positions use the
 "jacks at the bottom" view.
 
 | Part | Side, position | Marking (part code) | Package | Identification |
@@ -224,7 +241,7 @@ Read from the packages of an opened retail unit [AP30]. Lot and date codes are o
 | Storage | A, top edge | logo "TM" / `TM3F4GUAI` | 8-pad LGA, ~6×8 mm, 4 pads per long side | SD-NAND [?]; Titan Micro TM3F family by part-number match [WEB, ?]; "4G" = 4 Gbit [?]. See [storage.md](storage.md) |
 | (empty footprint) | A, top left | — | ~150-ball BGA site in rings (eMMC BGA-153 pattern [?]) | alternate eMMC fit, not populated |
 | RTC | A, right of the storage chip | `AnalogTek` / `AT85163S` | 8-pin MSOP | AnalogTek RTC, PCF85163-style [?]; see [rtc.md](rtc.md) |
-| RTC crystal | A, next to the RTC | `AQQT` / `T53F` | 2-pad SMD | 32.768 kHz by its position [?] |
+| RTC crystal | A, next to the RTC | `AQQT` (second line: lot/date code) | 2-pad SMD | 32.768 kHz by its position [?] |
 | DAC | A, centre | `CIRRUS` / `CS43198` | QFN-40 | Cirrus Logic CS43198 [AP30]; see [audio_dac_cs43198.md](audio_dac_cs43198.md) |
 | DAC crystal | A, above the DAC | `24.576` / `MHZ` | 4-pad SMD | 24.576 MHz (512 × 48 kHz), the CS43198's crystal [AP30 + DS] |
 | USB-audio chip | A, lower left | `ALC5686` | QFN-48 | Realtek ALC5686 [AP30]; see [usb.md](usb.md) |
@@ -234,18 +251,18 @@ Read from the packages of an opened retail unit [AP30]. Lot and date codes are o
 | Unknown | A, below the 24.576 MHz part | `4576` | QFN-16 | not identified; "4576" is a part code, not a frequency [?] |
 | Power | A, right edge | `DP1` / `165` | leadless, 6 pads visible on one long side, molded power inductor beside it | DC-DC converter or charger [?] |
 | Power | A, right of the SoC | `06T2` | SOT-23-6, inductor below it | buck converter [?] |
-| Power | A, top left corner | `70562?` (first / last characters unreadable) | 8 gull-wing leads | power part [?] |
+| Power | A, top left corner | `705628` (last character 8 or B; the second line is taken as a lot code [?]) | 8 gull-wing leads | power part [?]; no part found for this code yet |
 | Power | A, top left corner | arc logo + `S2ZQ` | SOT-23-5 | power part [?] |
 | Power | B by the coax tab, and A right edge | `D00HAV` (O vs 0 unclear) | SOT-23-5, two instances | LDO [?] |
-| Battery path | B, top edge next to `BAT+` | `AFCP` | 3-lead SOT-23 | P-MOSFET or diode [?] |
+| Battery path | B, top edge next to `BAT+` | `AFCP` (plus a small lot code on the side) | 3-lead SOT-23 | **AO3415-type 20 V P-channel MOSFET** [WEB, ?]: in Alpha & Omega's [SOT-23 marking scheme for the AO3415](https://www.aosmd.com/sites/default/files/res/markings/AO3415.pdf) `AF` is the product code, the third character a year/week code, the fourth the assembly site, and the code on the side the assembly lot. Second-source AO3415 parts may reuse `AF`, so the maker is open. Fits a battery load switch or reverse-current protection [?] |
 | Diodes | B (between `AFCP` and `D00HAV`), A (next to the ALC5686, two) | `SL` | SOD-123 | Schottky diodes [?] |
 | Amplifier | B, between the left jack and USB-C | `6863D` | QFN, 12-16 leads; no inductor nearby | Richtek RT6863 [AP30 + vendor spec]; see [audio_amp_rt6863.md](audio_amp_rt6863.md) |
-| Unknown | B, left of the RT6863 by the gold jack | `A80Q` | 16-lead leadless (4 per side) | not identified |
+| Unknown | B, left of the RT6863 by the gold jack | `A80Q` (second line: lot/date code [?]) | 16-lead leadless (4 per side) | candidate: Will Semiconductor [WSP6580Q](https://www.lcsc.com/product-detail/Analog-Switches-Multiplexers_WILLSEMI-Will-Semicon-WSP6580Q-16-TR_C2941901.html), a hi-fi stereo SPDT audio switch in a 16-lead QFN1826 package [WEB]; name and pin count fit, the maker's marking table has not been checked [?]. If so it switches a stereo signal pair near the jacks (amplifier vs. USB-DAC path, or one jack vs. the other) [?] |
 | Unknown | B, next to USB-C | `mBJ3H` | SOT-23-6 | ESD array or USB switch [?] |
 | Unknown | B, below the encoder frame | `L2AOU` | DFN | not identified |
 | Unknown | A, below the encoder | unmarked | 8 gull-wing leads, thick body | not identified (I2C device? only because of the pad silk next to it) [?] |
 | Small parts | both | `K2N`, `3T` (SOT-23), `4J` (SC-70), many `88` (SOD-523) | | small transistors / ESD diodes [?] |
-| Bluetooth | B, top edge (top-left in the jacks-at-bottom view) | JL logo / `FP00115-56C4` | QFN-32 (one side has a gap of about two leads) | JieLi Bluetooth SoC, part code not decoded [AP30]; see [bluetooth.md](bluetooth.md) |
+| Bluetooth | B, top edge (top-left in the jacks-at-bottom view) | JL logo / `…-56C4` (the part before the dash is a serial number) | QFN-32 (one side has a gap of about two leads) | JieLi Bluetooth SoC [AP30]; JieLi [hides the chip name after the dash](https://kagaimiq.github.io/jielie/chips/chip-marks.html), so probably an **AC6956C4** (AC695N family, QFN-32) [WEB, ?]; see [bluetooth.md](bluetooth.md) |
 | BT crystal | B, beside the JieLi | `24.000 MHZ` | 4-pad | 24 MHz |
 | Antenna | back cover | FPC sticker `B_1597-2.4G_A1`, reached by a coax pigtail whose crimp tab is soldered to a board pad (no U.FL socket) | | [AP30] |
 | Panel FPC | display flex | `FDT0201B015-V02` | 22 pins | display panel flex; no controller marking visible [AP30]; see [display.md](display.md) |
@@ -316,7 +333,7 @@ grantee codes are [2A7ZP](https://fccid.io/2A7ZP) and [2ANW4](https://fccid.io/2
 | `TX` pad = GPIO2_16? `CLK` pad = EMMC_CLK? | see [Test pads](#test-pads) |
 | Is the wheel push switch on PLAYON (ball A2) | continuity, or log GPIO2_5 while pressing the wheel |
 | Which headphone-detect pin belongs to which jack, and the polarity | read both pins with each plug inserted |
-| Identity of `A80Q`, `4576`, `L2AOU`, `mBJ3H`, the unmarked 8-lead part, the battery protection IC | better photos / markings lookup |
+| Identity of `A80Q` (WSP6580Q?), `705628`, `4576`, `L2AOU`, `mBJ3H`, the unmarked 8-lead part, the battery protection IC | better photos / markings lookup |
 | Display FPC pinout; are RD and TE wired | continuity with the panel unplugged |
 | Is the empty BGA footprint wired in parallel with the SD-NAND | continuity from its CLK ball to the LGA pads |
 
@@ -334,3 +351,9 @@ grantee codes are [2A7ZP](https://fccid.io/2A7ZP) and [2ANW4](https://fccid.io/2
 - [WEB] [Head-Fi AP30 showcase](https://www.head-fi.org/showcase/hidizs-ap30-music-boy.29215/) (vendor spec text);
   reviews in [../community/user_feedback.md](../community/user_feedback.md); fccid.io records linked above.
 - [EM] [iamcheyan/echo-mini-newfw](https://github.com/iamcheyan/echo-mini-newfw) `ETUDE.md`.
+- [WEB] Marking lookups: Alpha & Omega
+  [AO3415 marking description PD-00120](https://www.aosmd.com/sites/default/files/res/markings/AO3415.pdf) and
+  [AO3415 datasheet](https://www.aosmd.com/sites/default/files/res/datasheets/AO3415.pdf);
+  [WSP6580Q-16/TR at LCSC](https://www.lcsc.com/product-detail/Analog-Switches-Multiplexers_WILLSEMI-Will-Semicon-WSP6580Q-16-TR_C2941901.html);
+  JieLi chip markings: [kagaimiq/jielie, "chip marks"](https://kagaimiq.github.io/jielie/chips/chip-marks.html),
+  [AC6956C4 at LCSC](https://www.lcsc.com/product-detail/Microcontroller-Units-MCUs-MPUs-SOCs_JieLi-Tech-AC6956C4_C5339900.html).

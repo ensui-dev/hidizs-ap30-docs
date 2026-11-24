@@ -13,6 +13,12 @@ firmware.
 Tags: **[AP30]** firmware V1.7.8 or the device · **[TRM]** RKNanoD TRM V1.0 · **[DS]** a datasheet · **[EM]** Echo
 Mini · **[WEB]** public source · **[?]** guess.
 
+![Black rotary encoder rotor with a D-shaped hole in a metal frame stamped 6M1.](../images/parts/encoder.jpg)
+
+*ALPS volume-wheel encoder, side B: black rotor with D-hole in a stamped metal frame marked 6M1, in a board-edge notch. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Summary](#summary)

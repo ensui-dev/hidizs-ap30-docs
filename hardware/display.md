@@ -13,6 +13,12 @@ interface as the AP30 uses it, and the backlight.
 Tags: **[AP30]** firmware V1.7.8 or the device · **[TRM]** RKNanoD TRM V1.0 · **[DS]** a datasheet · **[EM]** Echo
 Mini · **[WEB]** public source · **[?]** guess.
 
+![Long white flat-flex connector with pin marks 1 and 22 on the board.](../images/parts/display-fpc-connector.jpg)
+
+*22-pin display FPC connector, side A, display-connector edge (silk 1 and 22). [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Summary](#summary)

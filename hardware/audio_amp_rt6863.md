@@ -12,6 +12,16 @@ output stage.
 Tags: **[AP30]** firmware V1.7.8 or the device · **[DS]** a datasheet · **[EM]** Echo Mini · **[WEB]** public
 source · **[?]** guess.
 
+![Small leadless chip printed 6863D, surrounded by capacitors.](../images/parts/rt6863.jpg)
+
+*Richtek RT6863 headphone amplifier (marked 6863D), side B, between the left jack and USB-C. [AP30]*
+
+![Two black headphone jack housings with a USB-C socket between them, board sitting in the back shell.](../images/parts/jacks.jpg)
+
+*The two headphone jacks on the USB edge, side B: left gold-plated (plastic mark Y), right larger (mark B), USB-C between them. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Summary](#summary)
@@ -42,15 +52,16 @@ source · **[?]** guess.
 - The marking `6863D` and the vendor's own spec text ("Richtek RT6863 amp") identify the part [AP30 + WEB].
 - One reviewer once wrote that the AP30 pairs the CS43198 with "a separate SGM amplifier"; the same reviewer names
   the RT6863 in his AP30 review, and the board shows the RT6863, so this is most likely a slip [WEB]. Only open way
-  it could hold: one of the unidentified parts near the jacks (`A80Q`, a 16-lead leadless part left of the RT6863)
+  it could hold: one of the unidentified parts near the jacks (`A80Q`, a 16-lead leadless part left of the RT6863, possibly a WSP6580Q audio switch [?])
   is an SG Micro part [?].
 - No inductor sits around the RT6863, so it is a linear headphone driver [AP30, ?].
 - Whether the RT6863 drives both outputs (four channels for balanced plus a single-ended pair) or whether the
   CS43198's own headphone stage drives one of them is not established [?]. The CS43198 has an integrated
   headphone output stage with a Class H supply that the firmware enables (`0x0B0000` = 0x1E, VP_LDO 3.0 V)
   [DS + AP30]; see [audio_dac_cs43198.md](audio_dac_cs43198.md).
-- Unknown part near the gold jack: `A80Q`, 16-lead leadless, with a `K2N` SOT-23 beside it [AP30]. It could be a
-  second amplifier channel pair, an analog switch or a mute part [?].
+- Unknown part near the gold jack: `A80Q`, 16-lead leadless, with a `K2N` SOT-23 beside it [AP30]. Best candidate by
+  name and package: Will Semiconductor WSP6580Q, a hi-fi stereo SPDT audio switch with pop suppression (QFN1826-16L)
+  [WEB, ?]; see [board_ap30.md § Chips and markings](board_ap30.md#chips-and-markings).
 
 ## Signal path
 

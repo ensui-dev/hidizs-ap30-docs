@@ -12,6 +12,12 @@ firmware maps its settings onto them.
 Tags: **[AP30]** firmware V1.7.8 or the device · **[DS]** CS43198 datasheet DS1156F2 · **[TRM]** RKNanoD TRM V1.0 ·
 **[EM]** Echo Mini · **[WEB]** public source · **[?]** guess.
 
+![Square chip printed TWN, CIRRUS, CS43198.](../images/parts/cs43198.jpg)
+
+*Cirrus Logic CS43198 DAC (QFN-40), side A, centre. [AP30]*
+
+More photos: [photos.md](photos.md).
+
 ## Contents
 
 - [Summary table](#summary-table)

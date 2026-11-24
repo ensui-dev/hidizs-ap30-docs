@@ -122,7 +122,7 @@ Compared glyph by glyph (300 random code points per range, best shift ±3 px) [A
 | Chip | Firmware | In the RKNanoD image? |
 |---|---|---|
 | Realtek ALC5686 (USB DAC mode, `0bda:4a35`) | in the chip (its data sheet describes embedded flash; no external flash visible next to it) | no: no Realtek string, ID or blob [AP30] |
-| JieLi Bluetooth chip (marking `FP00115-56C4`) | its own flash; linked by a UART | no: no JieLi strings [AP30]. JieLi publishes some SDKs openly (for example [fw-AC63_BT_SDK](https://gitee.com/Jieli-Tech/fw-AC63_BT_SDK), Apache-2.0), with the Bluetooth stack as closed libraries [WEB, ?]; which SDK built the AP30's chip is unknown |
+| JieLi Bluetooth chip (marking `…-56C4`, probably AC6956C4 [?]) | its own flash; linked by a UART | no: no JieLi strings [AP30]. JieLi publishes some SDKs openly (for example [fw-AC63_BT_SDK](https://gitee.com/Jieli-Tech/fw-AC63_BT_SDK), Apache-2.0), with the Bluetooth stack as closed libraries [WEB, ?]; which SDK built the AP30's chip is unknown |
 
 See [hardware/usb.md](../hardware/usb.md) and [hardware/bluetooth.md](../hardware/bluetooth.md).
 
