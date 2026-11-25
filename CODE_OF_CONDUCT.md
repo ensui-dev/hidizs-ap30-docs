@@ -29,11 +29,11 @@ page says how we treat each other in the repository, its issues, discussions and
 
 If someone breaks these rules, or you feel unsafe, report it **privately**:
 
-* Use GitHub's **Report content** menu ( **…** on the comment, issue or discussion) and choose to report it to the
-  repository maintainers. For something that breaks GitHub's own rules (harassment, spam, illegal content), report it
-  to GitHub as well.
-* For a problem that is not tied to one post, open a private report as described in [SECURITY.md](SECURITY.md) and
-  say that it is a conduct report.
+* **To the maintainers:** open a private report through the repository's **Security** tab → **Report a
+  vulnerability** (see [SECURITY.md](SECURITY.md)), start the title with "Conduct:", and link the post or posts
+  concerned. Only the maintainers can see it.
+* **To GitHub:** for something that breaks GitHub's own rules (harassment, spam, illegal content), also use the
+  **Report content** entry in the post's **…** menu, which goes to GitHub.
 
 Reports are read by the maintainers only and handled confidentially. Nobody is punished for a report made in good
 faith.
