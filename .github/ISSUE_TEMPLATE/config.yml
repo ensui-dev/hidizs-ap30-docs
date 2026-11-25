@@ -9,3 +9,6 @@ contact_links:
   - name: Player won't boot / recovery help
     url: https://github.com/ensui-dev/hidizs-ap30-docs/discussions/new?category=recovery
     about: Get help with a player that doesn't start.
+  - name: Security problem (private)
+    url: https://github.com/ensui-dev/hidizs-ap30-docs/security/advisories/new
+    about: Report a security issue in the repository, the site or the player privately. See SECURITY.md.

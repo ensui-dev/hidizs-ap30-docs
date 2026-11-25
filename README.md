@@ -114,6 +114,9 @@ images/                      teardown photos used by the pages (board/, parts/, 
    must never be written.
 7. **Scope.** The AP30 and everything connected to it. Work on new open-source firmware is documented elsewhere.
 
+How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md). How we treat each other: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Security or safety problems: [SECURITY.md](SECURITY.md).
+
 ## Licence
 
 The documentation is open so that information about this device stays freely accessible and credited.

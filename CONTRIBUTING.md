@@ -55,3 +55,9 @@ described in [LICENSE](LICENSE).
 ## Behaviour
 Be kind and patient; many readers are new to embedded hardware. Stay on topic, assume good faith, and don't share
 anything that could hurt someone's device or privacy. Maintainers may edit or remove posts that break these rules.
+The full rules and how to report a problem privately: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Security and safety
+A dangerous mistake in a procedure: open a **Correction** issue and say it is a safety problem, so it is fixed first.
+A security problem in the repository or the site, or an unpublished security issue in the player: report it
+privately as described in [SECURITY.md](SECURITY.md).
