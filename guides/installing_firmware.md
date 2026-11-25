@@ -43,8 +43,10 @@ Done on a device: the factory firmware was updated to V1.7.8 this way; afterward
 (2026-10-19 / 8.0.0) and the vendor "info" command reported firmware 8.0.0, loader still 4.16 [AP30].
 V1.8.3 (`HIFIYF23.IMG`) was installed the same way on 2026-11-25; About then shows "Ver 1.8.3" [AP30, device].
 
-An iPhone with a USB-C port can do step 3 too: the Files app sees the internal disk (named "NO NAME") and can copy
-the `.IMG` file onto it [AP30, device].
+An iPhone with a USB-C port can do step 3 too: the Files app sees the internal disk (named "NO NAME", because its FAT
+volume label is empty) and can copy the `.IMG` file onto it [AP30, device]. iOS leaves `.Spotlight-V100` and
+`.Trashes` folders on the disk and Windows leaves `System Volume Information`; the updater ignores all of them
+[AP30].
 
 ## What the updater does
 

@@ -90,8 +90,10 @@ sectors = 30 MiB, becomes the FW2 slot offset), and another value at +0x20 whose
 serial number, 405 reserved bytes, then a UID length + 30-byte UID, a Bluetooth address length + 6-byte address, and a
 MAC length + 6-byte MAC [EVK]. Only Rockchip's factory tool writes it, from a serial-number list [EVK]. The AP30
 firmware contains a reader for physical sector 0x43 (= op 0x04 address 3) at 0x0305ef14 and a wrapper at 0x03068766,
-but nothing calls the wrapper, so V1.7.8 never reads the serial [AP30]. Treat this sector as personal data: never
-publish a dump of it.
+but nothing calls the wrapper, so V1.7.8 never reads the serial [AP30]. On the unit examined, the sector holds **no
+serial number** at all (serial length 0, serial field all zero; re-read unchanged on 2026-11-24), and the loader's
+USB descriptors carry no serial string either [AP30, device]. Other units may differ, so still treat this sector as
+personal data: never publish a dump of it.
 
 ## Scrambling
 
@@ -213,6 +215,10 @@ fails.
 * **FW2 is used only when FW1 fails the loader's check** (wrong magic, header copy mismatch, or a read error). A FW1 that
   passes the check but crashes or hangs at run time is booted again and again: there is no watchdog and no boot
   counter in the loader [AP30, device-proven with a deliberately hung FW1].
+* **The fallback works on the device** [AP30, device test 2026-11-24]: with FW1's magic deliberately broken, a forced
+  power cut (~8 s Power) booted the FW2 copy and the player ran normally. The firmware still ran although it reads its
+  overlays from FW1, because it never checks FW1's magic; it only takes offsets from FW1's header, which were intact.
+  The stickiness across soft resets could not be observed, because both copies were identical.
 * Once FW2 has booted, `0x18CF` stays set (the firmware never clears it), so every soft reset prefers FW2 until a
   power-on-class reset clears the register [AP30; behaviour across a real power loss [?]].
 * If both slots fail, the loader spins in this routine. It does **not** fall back to USB mode by itself; the button

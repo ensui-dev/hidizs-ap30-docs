@@ -192,6 +192,10 @@ Result: recovery from a firmware that hangs at its very first instruction is **p
 This disproves the earlier community statement that there was "no known way to recover a device that won't boot"
 ([WEB] <https://github.com/nkahoang/hidizs-ap30-game-emu/blob/main/docs/FINDINGS.md>).
 
+A second test (2026-11-24) broke FW1's magic instead, so that FW1 **fails** the loader's check: after a forced power
+cut the loader booted the FW2 copy and the player worked normally; FW1 was then restored and verified [AP30, device].
+Details: [../firmware/boot_loader.md](../firmware/boot_loader.md#choosing-fw1-or-fw2-and-the-sticky-fallback).
+
 ## If even this fails
 
 In order [AP30 advice; untested steps marked]:

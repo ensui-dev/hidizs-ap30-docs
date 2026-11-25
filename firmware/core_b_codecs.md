@@ -399,7 +399,8 @@ More on the Echo Mini: [../related/snowsky_echo_mini.md](../related/snowsky_echo
 - Does writing the data word (not the command word) raise the mailbox flag on the AP30? [EM says yes, unverified]
 - Meaning of channel 1 replies 8 / 10 and of channel 2 message 0x68 [?].
 - The WAV module's input-buffer size [?].
-- Is there a global exclusive monitor (do LDREX/STREX work across cores)? The TRM does not say [?].
+- ~~Global exclusive monitor~~ answered: there is none; LDREX/STREX are not atomic across cores [AP30, device test
+  2026-11-25; [../hardware/dual_core.md](../hardware/dual_core.md#shared-memory-and-ordering)].
 - Do all peripheral interrupt lines reach core B's NVIC? The TRM's "20 external interrupts" per NVIC contradicts its
   own 41-line table and core B's use of IRQ 40 [TRM vs AP30].
 - Does a decoder error path in the OGG or WMA module really fault core B through the semihosting breakpoint

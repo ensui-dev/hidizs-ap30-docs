@@ -76,6 +76,10 @@ More photos: [photos.md](photos.md).
   known [AP30, ?].
 - The stock panel driver is a loadable overlay (overlay 4), chosen by an index in the firmware's configuration
   block [AP30]; see [../firmware/display_and_input.md](../firmware/display_and_input.md).
+- **Standard commands the stock firmware does not use, tried on the device** [AP30, device test with a custom image,
+  one unit, 2026-11-25]: vertical scroll (`33` / `37`) works but, in this orientation, moves the picture
+  **horizontally** and wraps over all 320 controller columns, hidden ones included; idle mode (`39`) reduces the
+  picture to 8 colours.
 
 ## Geometry: 296×240 on a 240×320 controller
 
@@ -86,6 +90,15 @@ More photos: [photos.md](photos.md).
 - In that orientation the controller addresses 320 columns × 240 rows; the glass shows **columns 24..319** (the
   window routine adds 24 to every column address) and rows 0..239 [AP30]. So the native controller frame is
   240×320 portrait [?].
+- **The window fills the glass exactly:** a 1-pixel frame drawn at columns 24 and 319 and rows 0 and 239 is fully
+  visible, while column 23 (and anything past 319) is hidden [AP30, device test with a custom image, one unit, 2026-11-25].
+- **Rounded corners:** the visible area has rounded corners of radius **60 px (±1)**, the same at all four corners.
+  The rounding is the panel's own black mask, which cuts through pixels along the arc, so pixels in the corners are
+  addressed but not seen [AP30, device test with a custom image, one unit, 2026-11-25].
+- **Refresh:** the panel refreshes at about **63 Hz** (measured from a 240 fps video); with no TE line on any SoC pin,
+  drawing cannot be synchronised to it [AP30, device test with a custom image, one unit, 2026-11-25].
+- **Colour depth in practice:** green (64 levels) looks smooth; red and blue (32 levels) show visible steps, and their
+  darkest levels are hard to tell from black [AP30, device test with a custom image, one unit, 2026-11-25].
 - A portrait mode (240×296) for the picture viewer, the boot logo and a menu animation is done in software by
   rotating coordinates before they reach the frame buffer; the panel stays at MADCTL 0xA0 [AP30].
 
@@ -142,22 +155,33 @@ boot logo → only then start the backlight PWM, so GRAM garbage is never visibl
   two bus bytes. Used for clears and fills [AP30].
 - **DMA blocks:** four-phase split, no half-word swap; each 32-bit word sends two pixels. The stock frame buffer
   stores each pixel pair swapped inside its 32-bit word (the even-x pixel in the upper half), so the VOP sends the
-  upper half-word first [AP30, inferred from the pixel writer]. The TRM instead asks for the half-word swap bit with
-  this layout; either works if used consistently [TRM, ?].
+  upper half-word first [AP30, inferred from the pixel writer; confirmed on the device]. With the half-word swap bit
+  (`VOP_MCU_CON` bit 4) the lower half-word goes first instead [AP30, device test with a custom image, one unit, 2026-11-25].
+- **Byte order:** in two-phase mode the high byte of each 16-bit pixel goes out first [AP30, device test with a custom image, one unit, 2026-11-25].
 - **DMA setup** [AP30, decoded with the TRM field names]: DMAC1, memory → peripheral, DMAC flow control; 32-bit
   source and destination; source increments, destination fixed (the VOP data register); bursts of 16 items; source
   on AHB master 2, destination on master 1; destination hardware handshake on **request 14**. One block carries at
   most 0xFF8 (4088) items; longer transfers are chained, up to 18 blocks (~73 000 words). A full 296×240 frame is
-  35 520 words, so at least 9 blocks [AP30 + arithmetic].
+  35 520 words, so at least 9 blocks [AP30 + arithmetic]. The same settings drive the panel correctly from a custom
+  image (with the linked lists also on master 1); the frame-buffer addresses go to the DMAC as they are, with no
+  translation [AP30, device test with a custom image, one unit, 2026-11-25].
 - The flush is **synchronous**: the CPU sleeps (WFI) until the DMA-done callback [AP30]. The same DMAC carries the
   I2S audio stream (channel 5) and other users.
-- A full frame is 142 080 bytes on the 8-bit bus; its transfer time has not been measured.
+- A full frame is 142 080 bytes on the 8-bit bus. **Measured transfer time:** about 19 ms at the boot loader's 48 MHz
+  and about 5 ms at 200 MHz with the fastest bus timing. At 48 MHz the LCD bus is the limit, so CPU stores and DMA take
+  the same time [AP30, device test with a custom image, one unit, 2026-11-25].
+- **Tearing:** a full-frame update tears visibly: a moving vertical bar breaks along a horizontal line, and a
+  horizontal bar breaks into vertically offset pieces [AP30, device test with a custom image, one unit, 2026-11-25]. From those shapes the panel appears to
+  refresh along screen columns (its native portrait rows: MADCTL 0xA0 swaps rows and columns), across the
+  row-by-row writes [inferred from the tear shapes]. No TE signal reaches the SoC as far as is known, so there is
+  nothing to synchronise with (open question 3). Fast motion also leaves visible ghosting from the LCD's response
+  time [AP30, device observation].
 
 ## Sleep and wake
 
 | Action | Sequence [AP30] |
 |---|---|
-| Standby | DISPOFF (`28`), SLPIN (`10`), 120 ms; then the VOP clock is gated |
+| Standby | DISPOFF (`28`), SLPIN (`10`), 120 ms; then the VOP clock is gated (the panel keeps its picture through SLPIN / SLPOUT; no redraw is needed after wake, device-tested) |
 | Wake | clock on, SLPOUT (`11`), 120 ms, DISPON (`29`) |
 | Screen off (auto-off or a Power short press) | **backlight only**: PWM stopped, GPIO2_4 low. The panel stays in normal display mode with its last picture; no SLPIN |
 | Power-off | goodbye picture with the backlight on (~0.5 s), backlight off, panel standby, then power off |
@@ -183,11 +207,25 @@ Registers the stock driver uses [AP30]:
 | `VOP_MCU_DATA` | 0x2c | data cycles (RS high); DMA target |
 | size, FIFO watermark, soft reset, interrupts, status, start | 0x0c-0x24, 0x30 | never used; the CRU reset is used instead of the soft reset |
 
+**Behaviour of the VOP** [AP30, device test with a custom image, one unit, 2026-11-25]:
+
+* The busy bit in `VOP_MCU_STATUS` never reads 1 during CPU writes, so it cannot be used to wait.
+* The VOP's FIFO keeps sending after the CPU's last store returns.
+* **Writing `VOP_MCU_CON` (changing the mode) or reading any VOP register while words are still queued corrupts the
+  transfer.** The stock driver avoids this simply because it never reads the VOP (a search of the whole image finds
+  no read of the status or interrupt-status registers [AP30]); the next window starts with a mode write, after the
+  synchronous DMA flush.
+* In the split (two- or four-phase) modes a write to the command register sends an extra command cycle, so panel
+  commands have to be sent in byte mode (as the stock window routine does).
+
 **Bus timing rule** [AP30]: with n = f_sys / 8 MHz, `csrw` ≈ n/16 (CS-to-strobe lead), `rwpw` ≈ n/12 (strobe
 width, clamped 1..63), `rwcs` ≈ n/16 (strobe-to-CS trail, clamped 1..31); e.g. 200 MHz gives 1 / 2 / 1 (register
 value 0x1041). The aim is a strobe width roughly constant in nanoseconds across clock levels. When the system runs
-from the 24 MHz crystal the register is left at its reset value (all fields act as 1 cycle). Which clock the VOP
-counts in, and the resulting WR pulse width, are not established. The Echo Mini study reports 0x3083 at 200 MHz,
+from the 24 MHz crystal the register is left at its reset value (all fields act as 1 cycle). `VOP_MCU_TIMING`
+counts **hclk** cycles at both 48 and 200 MHz: one step is 20.8 ns at 48 MHz and 5 ns at 200 MHz. A byte costs
+roughly the three fields added together plus about 3.5 hclk. Even the fastest setting (1 / 1 / 1) draws correctly:
+about 146 ns per byte at 48 MHz and about 33 ns per byte at 200 MHz, so the stock 200 MHz value 0x1041 (1 / 2 / 1)
+has margin [AP30, device test with a custom image, one unit, 2026-11-25]. The Echo Mini study reports 0x3083 at 200 MHz,
 the RECHO firmware uses 0x1021 [EM]; neither matches the AP30 rule.
 
 The VOP has a second DMA target address (0x60090000 + 0x0c) referenced only by two uncalled routines; probably the
@@ -202,13 +240,14 @@ e-ink controller block, unused on the AP30 [AP30, ?].
 | Duty | DUTY = percent × PERIOD / 100; CTRL = enabled, continuous mode, duty polarity "negative"; 0 % or 100 % disables the channel instead | [AP30] |
 | Level table | six entries **85 / 80 / 70 / 60 / 40 / 95 %**, indexed by a settings-block byte (+0x17) | [AP30] |
 | UI | brightness 1-5 in Settings; the mapping from UI level to table index is not checked | [WEB] + [?] |
-| Polarity | on the Echo Mini (same firmware base and PWM settings) DUTY was measured to be the **off** time. If the same holds here, the on-times are 15 / 20 / 30 / 40 / 60 / 5 % and the brightest stock level is only ~60 % on | [EM], [?] for the AP30 |
+| Polarity | **DUTY is the off time**, as on the Echo Mini: the stock on-times are 15 / 20 / 30 / 40 / 60 / 5 %, so the brightest stock level is only ~60 % on | [AP30, device test with a custom image, one unit]; [EM] |
+| Usable range | at the stock 15 kHz setting (nominal; the real PWM clock is not measured) the light works from about 10 % to 100 % on-time and stays dark at 5 % and below, so the stock table's 5 % entry would give a dark screen [provisional] | [AP30, device test, one unit] |
 | Off | PWM channel stopped, its clock gated when no other channel runs, GPIO2_4 back to GPIO output low | [AP30] |
 | Auto-off timeouts | 15 / 30 / 60 / 180 / 300 / 1800 s or never (settings byte +0x18) | [AP30] |
 | Clock / reset ids | pclk_pwm0 gate 0x90, pwm0 reset 0x17 | [AP30 + TRM names] |
 
-Reviewers find the screen hard to read in sunlight [WEB]; whether a higher on-time is possible depends on the
-polarity question above. The reference board also puts the backlight on PWM0 [WEB] EVK (its user guide draws it on
+Reviewers find the screen hard to read in sunlight [WEB]; the stock levels leave headroom: the brightest uses only
+~60 % on-time, and 100 % works [AP30, device test]. The reference board also puts the backlight on PWM0 [WEB] EVK (its user guide draws it on
 PWM2, a documentation error).
 
 ## Frame buffer and resources (pointers)
@@ -231,11 +270,12 @@ with DUTY = off time (measured). Same VOP, same PWM block, same GPIO2_15 reset l
 |---|---|---|
 | 1 | Exact controller part (JD9853?) | compare the init table with a JD9853 datasheet; read the ID (0x04 / 0xDA-0xDC) with a bit-banged RD once the RD pin is known |
 | 2 | 22-pin FPC pinout (RD, TE, backlight, supplies) | continuity with the panel unplugged |
-| 3 | Is TE routed to any SoC pin? Panel frame rate? | scope the FPC's TE pin (TE is enabled, so pulses should appear) |
-| 4 | WR timing in ns; which clock `VOP_MCU_TIMING` counts | logic analyser on WRN at two clock levels |
-| 5 | Byte and half-word order in two- and four-phase modes, effect of the swap bit | on-device test pattern |
-| 6 | Backlight polarity, real on-time per level, UI level → table index | scope GPIO2_4 |
-| 7 | Do the 24-column offset and MADCTL 0xA0 cover the glass exactly (no hidden rows / columns)? | draw a 1-pixel frame at the window edges |
+| 3 | Is TE routed to any SoC pin? (Frame rate: ~63 Hz, measured) | scope the FPC's TE pin (TE is enabled, so pulses should appear) |
+| 4 | ~~Which clock `VOP_MCU_TIMING` counts~~ hclk at 48 and 200 MHz (device test); the exact strobe waveform | logic analyser on WRN |
+| 5 | ~~Byte and half-word order~~ answered by a device test pattern (see [Drawing](#drawing-window-pixel-modes-dma)) | — |
+| 6 | ~~Backlight polarity~~ DUTY = off time (device test); the real PWM clock, and the UI level → table index | scope GPIO2_4 |
+| 7 | ~~Window coverage~~ exact (device test), with 60 px rounded corners | — |
+| 8 | Role of GPIO2_14: toggling it with the panel running has no visible effect, so it is not the panel reset, enable or backlight [AP30, device test] | continuity to the panel FPC, DAC and amplifier |
 
 ## Sources
 

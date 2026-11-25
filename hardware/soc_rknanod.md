@@ -339,6 +339,11 @@ reset and power-down, integer mode, new `fbdiv`/`postdiv1` and `refdiv`/`postdiv
 the new speed; release power-down and poll lock; write `CLKSEL0`, then `CLKSEL1`, with a short delay after each; switch
 `MODE_CON` to the PLL. Targets at or below 24 MHz stay on the crystal with the `MODE_CON` divider (down to 375 kHz).
 
+**Device test of the 200 MHz step** [AP30, device test with a custom image, one unit, 2026-11-25]: the stock setting
+(24 MHz ÷ 6 × 100 = 400 MHz VCO, ÷ 1 ÷ 2 = 200 MHz) reproduced from the boot loader's 48 MHz locked in about 82 µs.
+With the extra SRAM response cycle enabled, a code loop ran about 3× faster than at 48 MHz, not the 4.17× the clock
+ratio would suggest.
+
 ### SRAM response cycles
 
 `GRF_INTER_CON0` (0x500100C4, write mask in bits 31:16) [TRM ch4, ch12.3.1]:
@@ -489,11 +494,15 @@ The flash layout: [idb_and_flash_layout.md](../formats/idb_and_flash_layout.md).
 
 ## The MPU question
 
-**Unknown; assume absent.**
+**Neither core has an MPU** [AP30, device test on one unit, 2026-11-25].
 
-* **Documents:** neither the TRM nor either datasheet mentions a Memory Protection Unit. The CPU feature lists (TRM
-  ch1.1, ch7.1.1) name Thumb, banked SP, divide, NVIC, bit-band and debug, and no MPU [TRM; DS]. Arm makes the Cortex-M3
-  MPU an implementation option, so its absence from a feature list proves nothing [WEB] Arm.
+* **Measured:** a small test image read the system control registers on both cores. Both report `CPUID` 0x412FC230
+  (Cortex-M3 revision r2p0), and `MPU_TYPE.DREGION` (0xE000ED90, bits 15:8) is 0 on both: no regions, so no MPU.
+  Core A's `ICTR` reads 7 (interrupt lines implemented in groups of 32, up to 256); core A ran at 48 MHz when the
+  boot loader handed over [AP30, device].
+* **Documents** never mentioned one either: the CPU feature lists (TRM ch1.1, ch7.1.1) name Thumb, banked SP, divide,
+  NVIC, bit-band and debug [TRM; DS]. Arm makes the Cortex-M3 MPU an implementation option, so only the measurement
+  settles it [WEB] Arm.
 * **Firmware:** no code in the AP30 image (core A, all core-B modules, the boot loader) touches the MPU registers
   (0xE000ED90-0xE000EDB8), and no such address appears as a literal anywhere [AP30]. `CONTROL` is written only by an
   unreferenced helper group; there is no SVC use. **Stock code always runs privileged, in thread mode on the main
@@ -503,11 +512,9 @@ The flash layout: [idb_and_flash_layout.md](../formats/idb_and_flash_layout.md).
 * **No other protection:** no bus firewall, no TrustZone (ARMv7-M has none), no per-master filtering, no per-core
   peripheral enables. Core B can write the CRU, GRF and PMU (the stock core-B modules do) [TRM ch2.1, ch4, ch5; AP30].
   Consequences: [dual_core.md](dual_core.md#isolation).
-* **How to check:** run a few instructions on each core that read `MPU_TYPE` at 0xE000ED90. Bits 15:8 (`DREGION`) give
-  the number of regions: 0 = no MPU, 8 = MPU present. The same probe can read `CPUID` (0xE000ED00, the core revision)
-  and `ICTR` (0xE000E004, the number of implemented interrupt lines), and write 0xFF to one NVIC priority byte and read
-  it back (0xF8 expected for 5 bits). The probe itself needs no write to storage, but getting it onto the player
-  means installing a custom image.
+* **No global exclusive monitor** either: see [dual_core.md](dual_core.md#shared-memory-and-ordering).
+
+The same test needs a custom image on the player:
 
 > **Warning:** installing any custom image writes the firmware slots. Follow
 > [installing_firmware.md](../guides/installing_firmware.md), have the loader-mode recovery path of

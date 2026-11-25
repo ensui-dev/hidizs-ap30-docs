@@ -7,7 +7,8 @@ power-on, in its own switchable power domain (PD_HIGH) together with 384 KiB of 
 DMAC2. Core A powers the domain, copies a program into HIGHRAM and releases core B, which fetches its vector table from
 HIGHRAM0 aliased at address 0. The cores talk through a four-channel mailbox (one command word, one data word and one
 status bit per channel and direction, no FIFO) and through RAM that both see at the same addresses. There are no
-caches, no documented hardware semaphores, no documented cross-core exclusive monitor and no bus protection: **core B
+caches, no hardware semaphores, no cross-core exclusive monitor (device-tested), no MPU on either core and no bus
+protection: **core B
 can read and write all memory and every peripheral, including the CRU that resets core A**; what core A can always do
 is stop core B. The AP30's stock firmware uses core B only as an audio decoder that it reloads and restarts for every
 track; that protocol is documented in [core_b_codecs.md](../firmware/core_b_codecs.md) and only summarised here.
@@ -225,9 +226,10 @@ layouts, timeouts and the info structure: [core_b_codecs.md](../firmware/core_b_
   the mailbox [WEB] Arm. The AHB peripherals at 0x6000_0000 are "Normal" memory in the default map, so the same applies
   to them ([soc_rknanod.md § Bus attributes](soc_rknanod.md#bus-attributes-caches-xip-bit-banding-memory-types)).
 * **No hardware semaphore or spinlock block** in the address map, the GRF or the PMU [TRM ch2.1, ch4, ch5].
-* **No documented global exclusive monitor.** The Cortex-M3 has a local monitor; making `STREX` fail after the other
-  core's write needs a system-level monitor, which the TRM does not mention [WEB] Arm; [TRM ch7]. Assume
-  `LDREX`/`STREX` are atomic only against the same core's interrupts, not against the other core, until tested.
+* **No global exclusive monitor** [AP30, device test on one unit, 2026-11-25]. Core A's `STREX` still succeeds after core B has
+  stored to the same word, in HIGHRAM1, SYSRAM0, SYSRAM1 and PMU-SRAM alike. Each Cortex-M3 has only its local
+  monitor [WEB] Arm, so `LDREX`/`STREX` are atomic only against the same core's interrupts, **never against the other
+  core**. Cross-core synchronisation has to use single-writer data (below), not atomics.
 * **What is safe without atomics:** aligned 32-bit loads and stores are single-copy atomic, which is enough for
   single-producer / single-consumer rings with barriers [WEB] Arm. The Echo Mini's own firmware moves data this way
   (input ring and PCM ring in HIGHRAM1, a shared block at 0x01020000) [EM].
@@ -373,11 +375,10 @@ AP30].
   PMU power control; program DMAC1 and DMAC2, whose transfers bypass any CPU-side MPU; overwrite any RAM.
 * **Core A can always:** stop core B (assert `cal_core`, gate `hclk_cal_core`, power PD_HIGH down), read core B's lockup
   and sleep state (`GRF_SOC_STATUS1`). That is fault containment by kill switch, not protection.
-* **Each core's NVIC and SCS (including its MPU, if one exists) is private**, so neither core can reconfigure the other's
-  interrupts or memory protection [WEB] Arm.
-* **MPU:** not documented and never used by the stock firmware; whether either core has one is unknown
-  ([soc_rknanod.md § The MPU question](soc_rknanod.md#the-mpu-question)). Without an MPU, any code on core B can corrupt
-  anything.
+* **Each core's NVIC and SCS is private**, so neither core can reconfigure the other's interrupts [WEB] Arm.
+* **MPU: neither core has one** [AP30, device test 2026-11-25;
+  [soc_rknanod.md § The MPU question](soc_rknanod.md#the-mpu-question)]. Any code on either core can corrupt anything;
+  the only containment is core A's kill switch.
 * **Stock firmware:** core A trusts every pointer core B sends; in the file service it writes file data wherever core
   B's request says [AP30]. Core A never checks core B's lockup status; a timed-out wait is treated as if the reply had
   arrived [AP30]. Known core-B hangs on malformed files are listed in [known_bugs.md](../firmware/known_bugs.md).
@@ -414,15 +415,41 @@ feeding the next file to the running decoder instead (see
 * **Clock changes:** core A parks core B with a mailbox handshake before reprogramming the PLL; the 0x90-byte clock
   block is copied only at start, so core B's delays are wrong after a later frequency change [AP30; EM].
 
+## Power, clocks and the mailbox: device facts
+
+Measured on one AP30 with small custom test images (2026-11-25) [AP30, device, one unit]. They matter for any code that
+starts or stops core B:
+
+* **The boot loader leaves PD_HIGH powered.** At image entry core B's domain is already on.
+* **HIGHRAM retention:** with only the HIGHRAM clocks gated (1 ms tested) all banks keep their contents; after a 10 ms
+  power-down of PD_HIGH all banks are lost. `PMU_PWRDN_ST` reports the domain down about 1.4 µs after the request and
+  up about 5 µs after power-on.
+* **The mailbox (0x40110000) lives in PD_HIGH.** An access to it with PD_HIGH powered down **stalled the bus, and even
+  the watchdog did not reset the player** (only the ~8 s Power long-press got out) [observed once]. Power PD_HIGH up
+  first.
+* **`hclk_cal_core` must be on before touching HIGHRAM:** with it gated, core-A stores to HIGHRAM never complete and no
+  mailbox status bit rises.
+* **No mailbox traffic while core B is in reset:** writing an A2B command or data word raises no A2B status bit, and a
+  write by core A into the B2A registers raises no B2A status bit.
+
+**The stock firmware's order** [AP30, V1.7.8 code; not traced on the device], which avoids every one of these traps: power PD_HIGH on (without
+polling the status bit) → turn on all core-B clocks, `hclk_cal_core` included → release the mailbox, bridge, matrix
+and HIGHRAM resets → set up the B→A mailbox channels and their interrupts on core A. Then, for each track: hold core B
+in reset (`cal_core`) → copy its module into HIGHRAM → wait 5 ms → copy the 0x90-byte clock block → release core B →
+wait for its "ready" (up to ~0.2 s). Core A never writes `A2B_INTEN` and sends nothing on A→B before core B is
+running.
+
 ## Open questions
 
 1. **Which mailbox write raises the status bit**, CMD or DAT? [EM] says DAT; unverified on the AP30.
-2. **Cross-core exclusives:** does `STREX` on one core fail after the other core wrote the location? (Expected: no global
-   monitor.) Also: bit-band atomicity on a 0x400x_xxxx register from both cores.
-3. **MPU** on core A or core B: never probed (`MPU_TYPE` at 0xE000ED90).
+2. ~~Cross-core exclusives~~ answered: no global monitor (device test 2026-11-25). Still open: bit-band atomicity on a
+   0x400x_xxxx register from both cores.
+3. ~~MPU~~ answered: neither core has one (device test 2026-11-25).
 4. **Interrupt routing:** does every line reach both NVICs; is `ICTR` the same on both cores?
 5. **DMA reach:** can DMAC2 access SYSRAM and PMU-SRAM; can DMAC1 access HIGHRAM0?
-6. **PD_HIGH power-down:** does HIGHRAM really lose its contents (the TRM implies it), and how long does power-up take?
+6. ~~PD_HIGH power-down~~ answered by a device test (2026-11-25): HIGHRAM keeps its contents with only its clocks gated
+   (1 ms tested) and loses all banks across a 10 ms power-down; `PMU_PWRDN_ST` reports "down" about 1.4 µs after the
+   request and "up" about 5 µs after power-on. See [Power, clocks and the mailbox: device facts](#power-clocks-and-the-mailbox-device-facts).
 7. **HIGHRAM extra-cycle threshold:** the stock firmware switches at 300 MHz, the TRM says ~150 MHz, and the Echo Mini
    saw faults at 200 MHz without it.
 8. **IMDCT36 / SYNTH power domain:** PD_LOGIC (block diagram) or tied to PD_HIGH? Test: access them with PD_HIGH off.
