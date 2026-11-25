@@ -94,7 +94,9 @@ More photos: [photos.md](photos.md).
 - **MADCTL works as standard:** MV (bit 5) swaps rows and columns, MY (bit 7) reverses the physical rows (screen
   left/right), MX (bit 6) reverses the physical columns (screen up/down) [AP30, device test with a custom image, one unit, 2026-11-25]. So the stock 0xA0 (MV + MY)
   shows physical rows 0..295, and the 24 hidden lines (columns 0..23 in the stock orientation) are physical rows
-  296..319, beyond the left edge [derived; not seen directly].
+  296..319, beyond the left edge. This was seen directly: numbered 8-row stripes written in native order show
+  physical row 0 at the right edge and row 295 as the last visible line at the left edge, with nothing of row 296
+  visible [AP30, device test with a custom image, one unit, 2026-11-25].
 - **The window fills the glass exactly:** a 1-pixel frame drawn at columns 24 and 319 and rows 0 and 239 is fully
   visible, while column 23 (and anything past 319) is hidden [AP30, device test with a custom image, one unit, 2026-11-25].
 - **Rounded corners:** the visible area has rounded corners of radius **60 px (±1)**, the same at all four corners.
@@ -184,8 +186,15 @@ boot logo → only then start the backlight PWM, so GRAM garbage is never visibl
     [Geometry](#geometry-296240-on-a-240320-controller)).
   * Written in the panel's native order (MADCTL 0x00 or 0x80), the same line stays straight.
   * Fast horizontal motion still skews across the screen in any order, as on any scanned display.
+  * **Timing:** with one full-frame update per panel period (16.68 ms), a frame written in native order, along the
+    scan, showed a tear only about 5 % of the time; written against the scan, a fixed split stayed at the right edge.
+    At slightly different periods (16.66 and 16.70 ms) the tear drifted across the screen in opposite directions,
+    and it stood still at about 16.69 ms, which confirms the 59.95 Hz refresh.
 
-  No TE signal reaches the SoC as far as is known, so there is nothing to synchronise with (open question 3). Fast
+  The VOP has no RD or TE pin, so the LCD bus is write-only from its side [TRM ch. 15]. Whether a GPIO drives the
+  panel's RD is open: the Echo Mini uses GPIO0_12, but on the AP30 that pin is driven in USB DAC mode [AP30; EM]
+  (open questions 1-3). Until then the scanline read (`45`) is not available and firmware cannot learn the scan phase. Writing in native order at the panel's rate ("near tear-free") is the best firmware can do
+  without hardware changes. Fast
   motion also leaves visible ghosting from the LCD's response time [AP30, device observation].
 
 ## Sleep and wake
