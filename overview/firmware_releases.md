@@ -49,10 +49,11 @@ timeline
 |---|---|---|
 | `HIFIYF26.IMG` | a public Google Drive folder ["AP30-HIFIYF26 Firmware-0727"](https://drive.google.com/drive/folders/1FS4LT7nPmJlrgBJD76_OU4EqBXUDNuzb), linked from reviews (Chris Love on mobileaudiophile, IceIceberg on Head-Fi) and reportedly from Head-Fi; **not** on the Hidizs Download Center | file dated "Jul 23", instructions document "Jul 27" [WEB] |
 | `HIFIYF05.IMG` | [Hidizs Download Center](https://www.hidizs.net/pages/download-center) → [Drive folder "11-Game Firmware"](https://drive.google.com/drive/folders/1eh8GAXxhXflLeVO4Y43jqXNZsKySmr3K) | file and instructions dated "Sep 28" [WEB] |
-| `HIFIYF18.IMG` | Hidizs Download Center → [Drive folder "AP30 Firmware-V 1.7.8"](https://drive.google.com/drive/folders/1UtbNfDBERrcP6VWIMiwKfIeSnyiECXn8) | file dated "Oct 18" (one day before its header date, probably a time-zone effect [?]), PDF instructions "Oct 27" [WEB] |
-| `HIFIYF23.IMG` | [Hidizs Download Center](https://www.hidizs.net/pages/download-center) → [Drive folder](https://drive.google.com/drive/folders/1I7IYvuXKublGF4vxao-_PG0ZX7zFGGLh) | with a bilingual (Chinese / English) PDF "V1.8.3 Firmware Update Instructions"; downloaded 2026-11-24 [WEB] |
+| `HIFIYF18.IMG` | Hidizs Download Center → [Drive folder "AP30_V 1.7.8_ Firmware"](https://drive.google.com/drive/folders/1UtbNfDBERrcP6VWIMiwKfIeSnyiECXn8) | file dated "Oct 19" (= its header date), PDF instructions "Oct 28" [WEB] |
+| `HIFIYF23.IMG` | Hidizs Download Center → [Drive folder "AP30_V 1.8.3_ Firmware"](https://drive.google.com/drive/folders/1I7IYvuXKublGF4vxao-_PG0ZX7zFGGLh) | file dated "Nov 23" (= its header date); bilingual (Chinese / English) PDF instructions modified on 2026-11-24 [WEB] |
 
-The folders are public; no login is needed [WEB]. Drive shows no year on these dates.
+The folders are public; no login is needed [WEB]. Drive shows no year on these dates, and it shows them in the
+viewer's time zone, so a date can differ by one day for readers elsewhere.
 
 ### Hidizs changelogs [WEB]
 

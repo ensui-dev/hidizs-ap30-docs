@@ -182,14 +182,15 @@ More on the two chips: [../related/rockchip_rknano_family.md](../related/rockchi
 | 2026-08-17 | Kickstarter campaign ends | [WEB] |
 | **2026-08-19** | build date of `HIFIYF05.IMG` ("11-Game Firmware"), found as the factory firmware on a retail unit; the firmware also resets an invalid clock to 2026-08-19 09:00 | [AP30] |
 | Sep 2026 | `HIFIYF05.IMG` published on the Hidizs Download Center (Drive date "Sep 28"; year not shown) | [WEB] |
-| **2026-10-19** | build date of `HIFIYF18.IMG` = **V1.7.8** (29 games, playback stutter and Custom EQ fixes); Drive date "Oct 18", instructions "Oct 27" | [AP30] + [WEB] |
-| Nov 2026 | retail reviews continue; no newer firmware known at the time of writing | [WEB] |
+| **2026-10-19** | build date of `HIFIYF18.IMG` = **V1.7.8** (29 games, playback stutter and Custom EQ fixes); Drive date "Oct 19", instructions "Oct 28" | [AP30] + [WEB] |
+| **2026-11-23** | build date of `HIFIYF23.IMG` = **V1.8.3** (gapless FLAC playback, game progress saved, playback fixes); Drive date "Nov 23", instructions 2026-11-24 | [AP30] + [WEB] |
+| Nov 2026 | retail reviews continue | [WEB] |
 
 Firmware details per release: [firmware_releases.md](firmware_releases.md).
 
 ## Official firmware update method
 
-Hidizs's instructions [WEB]: copy the update file (for V1.7.8: `HIFIYF18.IMG`) to the **root of the internal
+Hidizs's instructions [WEB]: copy the update file (for V1.8.3: `HIFIYF23.IMG`) to the **root of the internal
 storage**, eject, restart the player; it updates by itself.
 
 What the firmware actually does [AP30]:

@@ -67,8 +67,9 @@ no external link.
 
 | Source | Link | Used for |
 |---|---|---|
-| Hidizs Download Center | [hidizs.net/pages/download-center](https://www.hidizs.net/pages/download-center) | links the V1.7.8 and 11-Game firmware folders; no mention of licences or source code |
-| Drive folder "AP30 Firmware-V 1.7.8" | [drive.google.com](https://drive.google.com/drive/folders/1UtbNfDBERrcP6VWIMiwKfIeSnyiECXn8) | `HIFIYF18.IMG` + PDF instructions |
+| Hidizs Download Center | [hidizs.net/pages/download-center](https://www.hidizs.net/pages/download-center) | links the V1.8.3, V1.7.8 and 11-Game firmware folders; no mention of licences or source code |
+| Drive folder "AP30_V 1.7.8_ Firmware" | [drive.google.com](https://drive.google.com/drive/folders/1UtbNfDBERrcP6VWIMiwKfIeSnyiECXn8) | `HIFIYF18.IMG` + PDF instructions |
+| Drive folder "AP30_V 1.8.3_ Firmware" | [drive.google.com](https://drive.google.com/drive/folders/1I7IYvuXKublGF4vxao-_PG0ZX7zFGGLh) | `HIFIYF23.IMG` + PDF instructions (Chinese / English) |
 | Drive folder "11-Game Firmware" | [drive.google.com](https://drive.google.com/drive/folders/1eh8GAXxhXflLeVO4Y43jqXNZsKySmr3K) | `HIFIYF05.IMG` + instructions |
 | Drive folder "AP30-HIFIYF26 Firmware-0727" (linked from reviews, not from the Download Center) | [drive.google.com](https://drive.google.com/drive/folders/1FS4LT7nPmJlrgBJD76_OU4EqBXUDNuzb) | `HIFIYF26.IMG` + instructions |
 | AP30 user manual (image-only PDF, 20 pp.) | [drive.google.com](https://drive.google.com/file/d/1YyFsvKg82BAYunghygT7IgAAgt5OGPsx/view) | controls, no licence section |
