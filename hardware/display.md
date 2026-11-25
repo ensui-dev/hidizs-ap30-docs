@@ -88,15 +88,23 @@ More photos: [photos.md](photos.md).
 - The init sets **MADCTL = 0xA0** (row/column exchange + row-address order flip, RGB order) and **COLMOD = 0x05**
   (16 bpp) [AP30].
 - In that orientation the controller addresses 320 columns × 240 rows; the glass shows **columns 24..319** (the
-  window routine adds 24 to every column address) and rows 0..239 [AP30]. So the native controller frame is
-  240×320 portrait [?].
+  window routine adds 24 to every column address) and rows 0..239 [AP30].
+- **Native geometry:** the panel is natively **240 columns × 320 rows, portrait**. On the AP30's screen the physical
+  column addresses run from top to bottom, and physical row 0 is at the right edge [AP30, device test with a custom image, one unit, 2026-11-25].
+- **MADCTL works as standard:** MV (bit 5) swaps rows and columns, MY (bit 7) reverses the physical rows (screen
+  left/right), MX (bit 6) reverses the physical columns (screen up/down) [AP30, device test with a custom image, one unit, 2026-11-25]. So the stock 0xA0 (MV + MY)
+  shows physical rows 0..295, and the 24 hidden lines (columns 0..23 in the stock orientation) are physical rows
+  296..319, beyond the left edge [derived; not seen directly].
 - **The window fills the glass exactly:** a 1-pixel frame drawn at columns 24 and 319 and rows 0 and 239 is fully
   visible, while column 23 (and anything past 319) is hidden [AP30, device test with a custom image, one unit, 2026-11-25].
 - **Rounded corners:** the visible area has rounded corners of radius **60 px (±1)**, the same at all four corners.
   The rounding is the panel's own black mask, which cuts through pixels along the arc, so pixels in the corners are
   addressed but not seen [AP30, device test with a custom image, one unit, 2026-11-25].
-- **Refresh:** the panel refreshes at about **63 Hz** (measured from a 240 fps video); with no TE line on any SoC pin,
-  drawing cannot be synchronised to it [AP30, device test with a custom image, one unit, 2026-11-25].
+- **Refresh:** the panel refreshes at **59.95 Hz** (period 16.68 ms ± 0.01). It was measured by tracking the
+  repaint front across 29 s of 240 fps video, and one period fits every run. With no TE line on any SoC pin, drawing
+  cannot be synchronised to it [AP30, device test with a custom image, one unit, 2026-11-25].
+- **Scan direction:** the panel repaints one physical row after another, from the right edge of the screen to the
+  left, and crosses the visible width in about 15 ms [AP30, device test with a custom image, one unit, 2026-11-25].
 - **Colour depth in practice:** green (64 levels) looks smooth; red and blue (32 levels) show visible steps, and their
   darkest levels are hard to tell from black [AP30, device test with a custom image, one unit, 2026-11-25].
 - A portrait mode (240×296) for the picture viewer, the boot logo and a menu animation is done in software by
@@ -170,12 +178,15 @@ boot logo → only then start the backlight PWM, so GRAM garbage is never visibl
 - A full frame is 142 080 bytes on the 8-bit bus. **Measured transfer time:** about 19 ms at the boot loader's 48 MHz
   and about 5 ms at 200 MHz with the fastest bus timing. At 48 MHz the LCD bus is the limit, so CPU stores and DMA take
   the same time [AP30, device test with a custom image, one unit, 2026-11-25].
-- **Tearing:** a full-frame update tears visibly: a moving vertical bar breaks along a horizontal line, and a
-  horizontal bar breaks into vertically offset pieces [AP30, device test with a custom image, one unit, 2026-11-25]. From those shapes the panel appears to
-  refresh along screen columns (its native portrait rows: MADCTL 0xA0 swaps rows and columns), across the
-  row-by-row writes [inferred from the tear shapes]. No TE signal reaches the SoC as far as is known, so there is
-  nothing to synchronise with (open question 3). Fast motion also leaves visible ghosting from the LCD's response
-  time [AP30, device observation].
+- **Tearing depends on the write order** [AP30, device test with a custom image, one unit, 2026-11-25]:
+  * Written in the stock orientation (MADCTL 0xA0, row by row on the screen), a moving vertical line tears into
+    slanted pieces. The writes cross the panel's scan, which runs along screen columns (see
+    [Geometry](#geometry-296240-on-a-240320-controller)).
+  * Written in the panel's native order (MADCTL 0x00 or 0x80), the same line stays straight.
+  * Fast horizontal motion still skews across the screen in any order, as on any scanned display.
+
+  No TE signal reaches the SoC as far as is known, so there is nothing to synchronise with (open question 3). Fast
+  motion also leaves visible ghosting from the LCD's response time [AP30, device observation].
 
 ## Sleep and wake
 
@@ -270,7 +281,7 @@ with DUTY = off time (measured). Same VOP, same PWM block, same GPIO2_15 reset l
 |---|---|---|
 | 1 | Exact controller part (JD9853?) | compare the init table with a JD9853 datasheet; read the ID (0x04 / 0xDA-0xDC) with a bit-banged RD once the RD pin is known |
 | 2 | 22-pin FPC pinout (RD, TE, backlight, supplies) | continuity with the panel unplugged |
-| 3 | Is TE routed to any SoC pin? (Frame rate: ~63 Hz, measured) | scope the FPC's TE pin (TE is enabled, so pulses should appear) |
+| 3 | Is TE routed to any SoC pin? (Frame rate: 59.95 Hz, measured) | scope the FPC's TE pin (TE is enabled, so pulses should appear) |
 | 4 | ~~Which clock `VOP_MCU_TIMING` counts~~ hclk at 48 and 200 MHz (device test); the exact strobe waveform | logic analyser on WRN |
 | 5 | ~~Byte and half-word order~~ answered by a device test pattern (see [Drawing](#drawing-window-pixel-modes-dma)) | — |
 | 6 | ~~Backlight polarity~~ DUTY = off time (device test); the real PWM clock, and the UI level → table index | scope GPIO2_4 |
