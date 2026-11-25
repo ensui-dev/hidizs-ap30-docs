@@ -84,7 +84,7 @@ browse and control the player, HiBy Link style (1) [IR].
 |---|---|---|---|
 | **Output power limited** (61 mW SE / 137 mW BAL @ 32 Ω) | **16** | SU, MS, CL, PI, CI, IB, SL, CI2, AB, CH, SS, TT, IC, DD, JQ, DE | vendor figure, quoted by most reviews [WEB]; set by the RT6863 amplifier stage [AP30 + ?] |
 | **No parametric EQ** (6 presets + 5-band graphic) | **7** | MS, CL, CI, CH, MN, RQ, TT | the EQ is software on the system core: presets feed a filter bank and up to 10 biquad filters [AP30]. In V1.7.8 the EQ is **skipped** for 192 kHz, DSD and ≥ 24-bit material [AP30] ([../firmware/known_bugs.md](../firmware/known_bugs.md)) |
-| **No gapless playback** | **5** | CL, JR, AB, CH, MN | confirmed: every track change tears down the audio chain, reloads the decoder on core B, waits a fixed 80 ms and fades the last ~250 ms of the previous track; estimate 130-300 ms of silence [AP30]. [../firmware/audio_playback.md](../firmware/audio_playback.md) |
+| **No gapless playback** | **5** | CL, JR, AB, CH, MN | confirmed: every track change tears down the audio chain, reloads the decoder on core B, waits a fixed 80 ms and fades the last ~250 ms of the previous track; estimate 130-300 ms of silence [AP30]. **Partly fixed in V1.8.3:** gapless for FLAC → FLAC with the same rate, bit depth and channels (device-confirmed); every other transition unchanged [AP30]. [../firmware/audio_playback.md](../firmware/audio_playback.md#gapless-playback-v183) |
 | No volume limiter | 1 | CH | the firmware has AVLS (volume limiter) code; whether it is reachable from the menus is not established [AP30 + ?] |
 | PCM limited to 24-bit / 192 kHz | 1 | DD | matches the spec; DSD is converted to 44.1 kHz PCM, no native DSD or DoP output [AP30] |
 | Slow track change (up to 3 s after next / previous) | 1 | CH | consistent with the full tear-down per track (decoder reload from flash, file re-parse, tag read) [AP30 + ?] |
@@ -252,7 +252,7 @@ Single observations worth checking once (no counts):
 | "The EQ runs at DAC level" | [MS] | the EQ is software on the system core; only the filter choice is a DAC setting [AP30] |
 | "The AP30 pairs the CS43198 with an SGM amplifier" | [IC] (in an Echo Nano review; his AP30 review says RT6863) | RT6863 by marking [AP30] |
 | "S/PDIF DoP supported" (spec list) | [PI], [AB] | no S/PDIF or DoP path in the firmware [AP30] |
-| "Gapless: yes" (hifioasis spec summary) | [WEB](https://www.hifioasis.com/dap/hidizs-ap30-music-boy/) | not gapless [AP30] |
+| "Gapless: yes" (hifioasis spec summary) | [WEB](https://www.hifioasis.com/dap/hidizs-ap30-music-boy/) | not gapless up to V1.7.8; V1.8.3: FLAC → FLAC of the same format only [AP30] |
 | "Internal memory only holds firmware files, no songs" | [BE] | the internal volume appears as "Internal" in the browser and e-book reader [WEB] |
 
 ## Open questions

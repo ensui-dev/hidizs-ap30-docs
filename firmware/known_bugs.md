@@ -58,7 +58,7 @@ The ones an owner is most likely to notice, with links to the full entries:
 | Bug | Section |
 |---|---|
 | Favourites lost after a microSD card swap (device-confirmed) | [media library](#media-library-favourites-tags-and-cue-sheets) |
-| Every track fades out at the end and leaves a gap, gapless albums included | [playback](#playback-engine-eq-and-now-playing-screen) |
+| Every track fades out at the end and leaves a gap, gapless albums included (V1.8.3: except FLAC → FLAC of the same format) | [playback](#playback-engine-eq-and-now-playing-screen) |
 | Shuffle never picks the last file of the list | [playback](#playback-engine-eq-and-now-playing-screen) |
 | EQ presets Metal, Pop, Jazz, Unique play the wrong curves | [playback](#playback-engine-eq-and-now-playing-screen) |
 | EQ / effects skipped for 192 kHz, DSD and ≥ 24-bit playback | [playback](#playback-engine-eq-and-now-playing-screen) |
@@ -187,7 +187,7 @@ Library limits (7,168 songs, 28,672 entries, 8 folder levels, 500 favourites) ar
 
 | Bug | Description | Impact / trigger | Workaround | Origin | Tag |
 |---|---|---|---|---|---|
-| **Every track fades out and leaves a gap** | Each track is faded out over its last ~250 ms (from ~300 ms before the end), gapless albums included; then I2S stops, core B restarts with a module reload, and a fixed 80 ms wait follows. | ~100-280 ms of silence and a fade at every track change (estimate). | – | Hidizs | [AP30] |
+| **Every track fades out and leaves a gap** | Each track is faded out over its last ~250 ms (from ~300 ms before the end), gapless albums included. V1.8.3 removes both for FLAC → FLAC with the same rate, bit depth and channels (device-confirmed) and keeps them for every other transition; then I2S stops, core B restarts with a module reload, and a fixed 80 ms wait follows. | ~100-280 ms of silence and a fade at every track change (estimate). | – | Hidizs | [AP30] |
 | **Shuffle never picks the last file** | Shuffle picks `tick % total` (0 … N−1) as a 1-based file number (0x0305e982): 0 can be chosen (an invalid id) and the last file is never chosen. | One track per list never plays in shuffle; occasional invalid pick. | – | Hidizs | [AP30] |
 | Shuffle seed loop never advances | The seed loop never increments its counter; it ends only when the seed differs from the old seed and the current file. | Harmless in practice. | – | SDK | [AP30] |
 | **EQ presets use the wrong curves** | Hidizs renumbered the EQ modes (Normal 0, Bass 1, Metal 2, Pop 3, Jazz 4, Unique 5, Custom 6, …) but the gain table still has the SDK's 4 rows (overlay 33, 0x030481e8): Metal and Pop get the SDK's Jazz / Unique curves, Jazz and Unique read the bass-boost and "use EQ" rows, two more modes read past the table. | Audible: Metal, Pop, Jazz and Unique do not sound as named. | Use Normal, Bass or Custom EQ | Hidizs | [AP30] |
@@ -212,7 +212,12 @@ Library limits (7,168 songs, 28,672 entries, 8 folder levels, 500 favourites) ar
 | exFAT folder mode passes the wrong mode | The exFAT folder path calls the file counter with the file-system mode where the other path uses the library mode. | Unknown [?]. | – | Hidizs | [AP30, ?] |
 | Dead branches and handlers | A WAV early return that is never taken; now-playing volume handlers with no callers. | Harmless. | – | Hidizs | [AP30] |
 | Core-B file-service message reused | Message 0x74 means both "close result" and "stop"; a failing close would be read as a stop request. | Edge case [?]. | – | SDK | [AP30, ?] |
-
+| **V1.8.3 gapless: elapsed time wrong after a seek** | After a seek or fast-forward inside a track that was entered gaplessly, the elapsed time (and the saved resume point and A-B points) is computed against the previous track's length: it shows 0:00 or a value one previous-track-length too small until the next gapless transition. | Wrong time display and resume point in gapless FLAC albums. | – | Hidizs | [AP30 V1.8.3, code; device check pending] |
+| **V1.8.3 gapless: title switches early** | The title, tags and track time switch to the next track when the second core has read a few KiB into it, not when it is heard: estimated 0.1-0.5 s early, and the new track's clock starts ~0.1-0.3 s ahead. | Cosmetic. | – | Hidizs | [AP30 V1.8.3, code; size: ?] |
+| **V1.8.3 gapless: seek near the end of a chained track** | Cancelling a prepared gapless transition (seek in the last ~1 s) resets the second core's limits even when the current track was itself entered gaplessly. | The track may end early. Rare. | – | Hidizs | [AP30 V1.8.3, code; ?] |
+| **V1.8.3 gapless: audio interrupts held off during the next-file lookup** | The next file is found and opened with the audio refill and mailbox interrupts masked around each file-system call. | A slow directory walk (big folder, slow card) could cause a dropout ~1 s before the end of a FLAC track. | – | Hidizs | [AP30 V1.8.3, code; risk only] |
+| **V1.8.3 gapless: limited cases** | Only FLAC → FLAC with the same rate, bit depth and channels, in sequential play or folder repeat; not shuffle, repeat one, CUE tracks, or a FLAC file that starts with an ID3v2 tag. A seek in the last ~128 KiB of a track disables it for that transition. No encoder-delay handling for MP3 / AAC (no gapless for them at all). | Limitation, not a crash. | – | Hidizs | [AP30 V1.8.3, code + device] |
+| **V1.8.3: unused gapless switch** | Code to turn gapless on or off exists but nothing calls it and nothing stores the choice; there is no menu item. | None (gapless is always on). | – | Hidizs | [AP30 V1.8.3] |
 ## Settings, browser, e-book and other UI
 
 | Bug | Description | Impact / trigger | Workaround | Origin | Tag |

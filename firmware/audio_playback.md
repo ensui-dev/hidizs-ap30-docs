@@ -7,9 +7,11 @@ runs on core A as a background service, so music continues while other screens a
 file, picks a codec from the extension and the content, loads a small **front-end** overlay on core A and the matching
 **codec module** on core B, and starts core B. Core B decodes block by block into its own RAM; core A copies each block
 into one of two 36 KiB ping-pong buffers, widens it to 24-in-32-bit, applies EQ and fades, and sends it with DMA to
-**I2S1** and the **CS43198** DAC. At every track boundary the whole chain is torn down and rebuilt, with a fixed 80 ms
-wait and a deliberate 250 ms fade-out at the end of each track, so the stock firmware has **no gapless playback**.
-DSD files are converted to 44.1 kHz PCM on core B. All facts are from V1.7.8 [AP30] unless tagged otherwise.
+**I2S1** and the **CS43198** DAC. In V1.7.8 the whole chain is torn down and rebuilt at every track boundary, with a fixed
+80 ms wait and a deliberate 250 ms fade-out at the end of each track, so it has **no gapless playback**. **V1.8.3 adds
+gapless playback for FLAC → FLAC with the same format** and keeps the old path for everything else
+([Gapless playback (V1.8.3)](#gapless-playback-v183)). DSD files are converted to 44.1 kHz PCM on core B. All facts are
+from V1.7.8 [AP30] unless tagged otherwise.
 
 ## Contents
 
@@ -20,6 +22,7 @@ DSD files are converted to 44.1 kHz PCM on core B. All facts are from V1.7.8 [AP
 - [The front-end interface](#the-front-end-interface)
 - [Steady state: one block of look-ahead](#steady-state-one-block-of-look-ahead)
 - [Track change and the gap](#track-change-and-the-gap)
+- [Gapless playback (V1.8.3)](#gapless-playback-v183)
 - [Fades, mute and pop avoidance](#fades-mute-and-pop-avoidance)
 - [Volume](#volume)
 - [Gain and DAC filters](#gain-and-dac-filters)
@@ -211,6 +214,61 @@ Gapless playback on the same SoC has been shown by an open firmware for the Echo
 announced to core B ahead of time, encoder-delay trimming) [EM]; see
 [../related/community_projects.md](../related/community_projects.md).
 
+## Gapless playback (V1.8.3)
+
+V1.8.3 (`HIFIYF23.IMG`) adds true, sample-accurate gapless playback, but only in one case: **from one FLAC file to the
+next, when both have the same sample rate, bit depth and channel count** [AP30 V1.8.3, code; confirmed on a device
+2026-11-25]. It is always on; there is no setting and no new menu text. Every other transition still takes the path
+described above, with its gap and its end-of-track fade.
+
+**How it works** [AP30 V1.8.3]. About 128 KiB before the system core has finished reading the current file, the player
+looks up the next file. If it qualifies, it opens it, skips its FLAC header and metadata, and from then on serves
+core B one long **virtual file**: the rest of the current file followed by the audio frames of the next one. Through a
+small shared block it tells core B to raise its end-of-file and total-sample limits. The FLAC decoder therefore never
+sees a track end: it decodes the first frame of the next track right after the last frame of the current one, into
+the same buffers and the same running DMA / I2S stream. Nothing is closed, reloaded or re-initialised at the boundary,
+and the end-of-track fade is skipped. FLAC needs no encoder-delay trimming, and none is done.
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    A["FLAC track A playing"] --> W{"about 128 KiB of A left to read:<br/>next file qualifies?"}
+    W -->|"no"| OLD["old path at the end of A:<br/>fade-out, stop, reload, 80 ms wait"]
+    W -->|"yes"| SPL["open B, skip its header;<br/>core B reads A + B as one stream"]
+    SPL --> META["title, tags and track time switch to B<br/>(when core B has read a little of B)"]
+    META --> B["FLAC track B plays with no gap"]
+```
+
+**When it applies** [AP30 V1.8.3, code; device results marked]:
+
+| Situation | Gapless? |
+|---|---|
+| FLAC → FLAC, same rate, bit depth and channels, sequential play | **yes** (device: 16/44.1 and 24/96) |
+| FLAC → FLAC with a different rate, bit depth or channel count | no (device: 44.1 → 48 kHz, 16 → 24 bit, stereo → mono) |
+| Any other format, or FLAC ↔ another format | no (device: MP3 320, WAV); the other nine decoder modules are unchanged |
+| Folder repeat, last → first track | yes (device: gapless on every loop) |
+| Repeat all | yes within the list; the list spans all folders, so the wrap may go to a file in another format [device] |
+| Shuffle, repeat one | no |
+| CUE-sheet tracks | no |
+| Next FLAC file starts with an ID3v2 tag, or its total length is unknown | no (it still plays, with a gap) |
+| Seek / fast-forward in the last ~128 KiB of a track | that transition falls back to the normal gap |
+| Hi-res (24/96, 24/192) | allowed; the 128 KiB window is only ~0.15-0.4 s of audio there, so a busy moment could miss it and fall back to a gap [?] |
+| Internal storage vs microSD, file browser vs library | same rules; the next file must be on the same disk |
+
+**Side effects and possible bugs** (code reading, not yet checked on a device) [AP30 V1.8.3]:
+
+* The title, tags and track time switch to the next track a little **before** it is heard (when core B has read a few
+  KiB into it), estimated 0.1-0.5 s early, and the new track's clock starts slightly ahead [?].
+* After a seek or fast-forward inside a track that was entered gaplessly, the elapsed time can show 0:00 or a value
+  one previous-track-length too small (also the saved resume point and A-B points); it corrects itself at the next
+  gapless transition.
+* A seek in the last second of such a track could make it end early [?].
+* The next file is looked up with the audio interrupts briefly held off, so a very slow directory walk could cause a
+  dropout about 1 s before the end of a FLAC track [?].
+
+Details and status: [known_bugs.md](known_bugs.md#playback-engine-eq-and-now-playing-screen). The old path, including
+the ~250 ms fade over the end of every non-gapless track, is unchanged in V1.8.3 [AP30].
+
 ## Fades, mute and pop avoidance
 
 | Event | What the firmware does |
@@ -327,11 +385,12 @@ GPIO2_8 = 4.4 mm, GPIO0_13 = 3.5 mm [EM]).
 
 ## Differences between releases
 
-| Item | 0.0.0 (YF26) | 5.0.0 (YF05, factory) | V1.7.8 (YF18) |
-|---|---|---|---|
-| Core-B modules | the newer generation (Echo Mini V3.8.0 builds) for MP3, WMA, OGG, FLAC, ALAC, APE; older AAC, WAV | as 0.0.0, plus newer DSDIFF and DSF | **back to the older generation** for MP3, WMA, AAC, OGG, FLAC, DSDIFF, DSF; WAV, ALAC, APE match no Echo Mini build |
-| EQ gating | | preset only | skipped at 192 kHz, DSD, ≥ 24-bit |
-| Open limits | | APE above 96 kHz and DSD above ~DSD512 accepted | refused |
+| Item | 0.0.0 (YF26) | 5.0.0 (YF05, factory) | V1.7.8 (YF18) | V1.8.3 (YF23) |
+|---|---|---|---|---|
+| Core-B modules | the newer generation (Echo Mini V3.8.0 builds) for MP3, WMA, OGG, FLAC, ALAC, APE; older AAC, WAV | as 0.0.0, plus newer DSDIFF and DSF | **back to the older generation** for MP3, WMA, AAC, OGG, FLAC, DSDIFF, DSF; WAV, ALAC, APE match no Echo Mini build | as V1.7.8, except a **rewritten FLAC module** (and FLAC front end) |
+| EQ gating | | preset only | skipped at 192 kHz, DSD, ≥ 24-bit | |
+| Open limits | | APE above 96 kHz and DSD above ~DSD512 accepted | refused | |
+| Gapless | no | no | no | **FLAC → FLAC, same format** |
 
 [AP30 + EM, byte comparison of the codec modules.] Hidizs' V1.7.8 changelog says "playback stutter fixed"; rolling
 back the core-B decoders and the new limits are plausible ways that fix was made [?]. Module lineage:
@@ -340,6 +399,8 @@ back the core-B decoders and the new limits are plausible ways that fix was made
 ## Open questions
 
 - The real gap per format on a device (record the output across an album; split fixed costs from storage costs).
+- V1.8.3: the early title switch, the elapsed time after a seek in a gaplessly entered track, and the end-of-track fade
+  on MP3 (device checks) [?].
 - Whether a natural track start after a boundary gets a fade-in (the fade-flag reset path is unclear) [?].
 - Pin roles: GPIO2_1, GPIO2_2, GPIO2_14, GPIO1_4, GPIO0_12 (mute, power, amplifier, source switch) [?].
 - What output level the "low" gain setting really gives (reserved code) [?].

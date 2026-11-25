@@ -52,7 +52,7 @@ analysis or a measurement adds to or corrects a figure, the right-hand column sa
 | Weight | plastic ≈ 56 g, aluminium ≈ 80 g | one reviewer weighed a plastic unit at ≈ 55 g [WEB] |
 | Box | 102 × 92 × 42 mm | [WEB] |
 | OS | "HidizsOS" (some reviews and spec lists say "Linux") | **not Linux**: a bare-metal Rockchip RKnano SDK firmware with a cooperative task model and code overlays [AP30]. [../firmware/architecture.md](../firmware/architecture.md) |
-| Extras | e-book reader (TXT), games, file browser, A-B repeat | 29 games in the menu in V1.7.8, plus 4 hidden ones [AP30]. [../firmware/games.md](../firmware/games.md) |
+| Extras | e-book reader (TXT), games, file browser, A-B repeat | 29 games in the menu in V1.7.8, plus 4 hidden ones; V1.8.3 saves game progress [AP30]. [../firmware/games.md](../firmware/games.md) |
 
 ## Editions, colours and materials
 

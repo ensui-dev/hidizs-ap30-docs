@@ -210,8 +210,8 @@ formats with 296 × 240 images and, in V1.7.8, 0x112-byte string records [AP30].
 
 * [hifioasis AP30 page](https://www.hifioasis.com/dap/hidizs-ap30-music-boy/): a spec summary (RKNanoD, CS43198 +
   RT6863, DSD64/128/256, WAV/FLAC 24/192, APE 24/96, 5-band EQ, "gapless yes", "potentially a track limit of 10,000
-  tracks") [WEB]. Two points differ from the firmware: playback is **not gapless**, and the media library stops at
-  **7,168 song records** [AP30].
+  tracks") [WEB]. Two points differ from the firmware: playback is **not gapless** (up to V1.7.8; V1.8.3 is gapless
+  only for FLAC → FLAC of the same format), and the media library stops at **7,168 song records** [AP30].
 * [Qiita: RKNanoD notes (eggman)](https://qiita.com/eggman/items/7822981acba166469e49): memory map from the system
   core's view and pointers to SDK trees [WEB].
 * Rockchip's own open-source repositories (rkdeveloptool, rkbin, u-boot, kernel):

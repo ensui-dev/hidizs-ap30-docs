@@ -17,6 +17,7 @@ unless tagged otherwise.
 - [How a game is launched](#how-a-game-is-launched)
 - [How a game is built](#how-a-game-is-built)
 - [Resources available to a game](#resources-available-to-a-game)
+- [Saved progress (V1.8.3)](#saved-progress-v183)
 - [Differences between releases](#differences-between-releases)
 - [Known game bugs](#known-game-bugs)
 - [Community use of the game slots](#community-use-of-the-game-slots)
@@ -136,6 +137,27 @@ a library rebuild (its window overlaps the playback window) [AP30].
 
 A community project reports that more RAM is usable while a game runs (data up to 0x0302fd98 and 28 KiB of code
 window at 0x03084c00-0x0308bc00) without trouble [WEB nkahoang]. Memory map: [architecture.md](architecture.md#ram-use).
+
+## Saved progress (V1.8.3)
+
+V1.8.3 keeps game progress when you leave a game or power off, and **holding B during a game restarts it from level
+1** [WEB, Hidizs V1.8.3 instructions]. What the code shows [AP30 V1.8.3]:
+
+* A new save routine fills an 8 KiB buffer, marks it with the tag "GAME" and writes it to a reserved area of the
+  internal flash, on the same reserved storage the settings use but **not** in the settings record (whose layout is
+  unchanged). The exact sectors and the per-game record layout are not analysed yet [?].
+* 28 games gained a new one-byte flag with save / load code (Snake and BT Music already had such a flag in V1.7.8),
+  including both games of overlay 109 (Chinese Chess and Mole Hunt). That the flag means "saves progress" is read
+  in detail only for Gomoku and Maze [?]. Three hidden games are unchanged and probably do not
+  save: the bomb-laying maze game, the dot-eating maze chase and the dig-and-climb game [AP30; "do not save": ?].
+* Gomoku, read in detail: leaving the game saves its state; holding B clears its save slot and starts a new game with
+  3 lives and score 0 at the first level. So it keeps at least level, lives and score [AP30; "at least": ?]. Maze loads
+  its saved progress when it starts [AP30]. What each other game keeps, and whether hold-B behaves the same in all of
+  them, is not analysed [?].
+* Not analysed or tested yet: whether powering off also saves (or only leaving the game), and whether progress
+  survives an 8 s forced power-off, a factory reset or a firmware update [?]. An update writes only the two firmware
+  slots, so the reserved area is probably untouched [?]. After a downgrade to V1.7.8 the saved data is probably just
+  ignored [?].
 
 ## Differences between releases
 

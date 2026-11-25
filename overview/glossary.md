@@ -114,8 +114,9 @@ because a library rebuild filters it against a list that is not reloaded [AP30].
 
 ## G
 
-**Gapless** — playback with no gap between consecutive tracks. The AP30 tears the audio chain down at every track
-change and fades the end of each track; it is not gapless [AP30]. [../firmware/audio_playback.md](../firmware/audio_playback.md)
+**Gapless** — playback with no gap between consecutive tracks. Up to V1.7.8 the AP30 tears the audio chain down at
+every track change and fades the end of each track; V1.8.3 plays FLAC → FLAC of the same format gaplessly and keeps
+the old behaviour for everything else [AP30]. [../firmware/audio_playback.md](../firmware/audio_playback.md)
 
 **GBK** — the Chinese character encoding; the image contains a GBK conversion table blob, and the media library sorts
 by pinyin keys derived from it [AP30].

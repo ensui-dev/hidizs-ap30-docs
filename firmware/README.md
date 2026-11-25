@@ -86,6 +86,7 @@ described in full in [../formats/idb_and_flash_layout.md](../formats/idb_and_fla
 | `HIFIYF18.IMG` (V1.7.8) | 2026-10-19 / 8.0.0 | the reference: every address and fact is from this image unless another version is named [AP30] |
 | `HIFIYF05.IMG` ("11-Game Firmware") | 2026-08-19 / 5.0.0 | the factory firmware; used for differences (codec modules, EQ gating, open limits) [AP30] |
 | `HIFIYF26.IMG` | 2026-07-23 / 0.0.0 | the oldest image available; used for differences [AP30] |
+| `HIFIYF23.IMG` (V1.8.3) | 2026-11-23 / 3.0.0 | the newest release; compared function by function with V1.7.8. Pages describe its changes (gapless FLAC, saved game progress) where they matter and tag them "V1.8.3" [AP30] |
 
 Hashes, download links and the full release history: [../overview/firmware_releases.md](../overview/firmware_releases.md).
 

@@ -404,7 +404,9 @@ playback flow in [audio_playback.md](../firmware/audio_playback.md).
   **linked at 0x01000000** with its data at 0x01020000, 31-115 KiB per load [AP30]. Overlays 71-80 are described in
   [stage3_sections.md](../formats/stage3_sections.md).
 * **Reloaded from flash and restarted for every track**, including automatic advance: stop, reset, load, 5 ms, release,
-  ready, open [AP30]. This is one reason the stock player cannot be gapless.
+  ready, open [AP30]. This is one reason the stock player was not gapless; V1.8.3 avoids the restart for FLAC by
+feeding the next file to the running decoder instead (see
+[../firmware/audio_playback.md](../firmware/audio_playback.md#gapless-playback-v183)).
 * **Core B pulls the compressed file from core A** through the mailbox file service; core A runs the file system
   inside the mailbox interrupt and writes data straight into HIGHRAM [AP30].
 * **Decoded PCM** is copied by DMAC1 from core B's buffers in HIGHRAM1 into core A's buffers in SYSRAM, then sent to
