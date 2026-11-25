@@ -21,45 +21,39 @@ describes that firmware as found in the official images, mainly **V1.7.8** (`HIF
 
 ## Structure at a glance
 
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TB
+    subgraph FLASH["eMMC / SD-NAND (internal flash)"]
+        direction LR
+        IDB["IDB: boot loader"]
+        FW1["FW1 slot (30 MiB)<br/>RKnanoFW image"]
+        FW2["FW2 slot (30 MiB)<br/>copy of the image"]
+        P1["part 1 (200 MiB)<br/>settings, DB"]
+        P2["part 2: user FAT volume<br/>(USB disk)"]
+        IDB ~~~ FW1 ~~~ FW2 ~~~ P1 ~~~ P2
+    end
+    subgraph COREA["CORE A (system core), 640 KiB SRAM"]
+        S0["<b>section 0</b> (resident, 185 KiB code + 127 KiB data/bss)<br/>OS layer: main loop, tasks, windows, services, messages,<br/>SysTick 10 ms, software timers, PendSV audio service<br/>drivers: LCD, keys/wheel, ADC, I2C, I2S, DMA, SD/MMC,<br/>FAT/exFAT, USB PHY, RTC, power, watchdog, mailbox<br/>overlay loader, text renderer, tag readers, code pages"]
+        OV["<b>overlay windows</b> (one occupant each at a time)<br/>main window: boot init · main menu · library · player screen ·<br/>browser · settings · e-book · pictures · USB ·<br/>games (29 + 4 hidden) · BT Music<br/>playback engine (ov 33, + 34-36: file side, EQ)<br/>codec front-ends (ov 41-57, one at a time)<br/>library build (ov 37-40), updater (ov 8), USB (9-12)"]
+    end
+    subgraph COREB["CORE B (calculation core), HIGHRAM 384 KiB"]
+        CM["one codec module (ov 71-80, linked at 0x01000000):<br/>MP3 · WMA · AAC · WAV · OGG · FLAC · ALAC · APE · DFF · DSF<br/>each = shared core-B runtime + one decoder library<br/>accelerators: IMDCT36/SYNTH (MP3), HIFIACC (FLAC/ALAC/APE)"]
+    end
+    IDB -->|"loader copies sections 0, 1, 2"| COREA
+    FW1 -->|"overlays, images, fonts, strings read on demand"| COREA
+    P1 -->|"settings, library, favourites"| COREA
+    P2 -->|"music, update file"| COREA
+    COREA -->|"mailbox (4 channels)<br/>OPEN / DECODE / SEEK / CLOSE,<br/>file-service replies"| COREB
+    COREB -->|"decoded PCM (DMA copy)<br/>file data requests"| COREA
 ```
-                     eMMC / SD-NAND (internal flash)
- ┌──────────────┬──────────────────────┬──────────────────────┬──────────────┬──────────────────┐
- │ IDB: boot    │ FW1 slot (30 MiB)    │ FW2 slot (30 MiB)    │ part 1 200MiB│ part 2: user FAT │
- │ loader       │ RKnanoFW image       │ copy of the image    │ settings, DB │ volume (USB disk)│
- └──────┬───────┴──────────┬───────────┴──────────────────────┴──────┬───────┴────────┬─────────┘
-        │ loader copies    │ overlays, images, fonts,                │ settings,      │ music,
-        │ sections 0,1,2   │ strings read on demand                  │ library,       │ update file
-        ▼                  ▼                                         │ favourites     │
- ┌─────────────────────────────────────────────────────────────┐     │                │
- │ CORE A (system core), 640 KiB SRAM                          │◄────┴────────────────┘
- │                                                             │
- │  section 0 (resident, 185 KiB code + 127 KiB data/bss)      │
- │   OS layer: main loop, tasks, windows, services, messages,  │
- │   SysTick 10 ms, software timers, PendSV audio service      │
- │   drivers: LCD, keys/wheel, ADC, I2C, I2S, DMA, SD/MMC,     │
- │   FAT/exFAT, USB PHY, RTC, power, watchdog, mailbox         │
- │   overlay loader, text renderer, tag readers, code pages    │
- │                                                             │
- │  overlay windows (one occupant each at a time)              │
- │   main window ── boot init │ main menu │ library │ player   │
- │                  screen │ browser │ settings │ e-book │     │
- │                  pictures │ USB │ games (29 + 4 hidden) │   │
- │                  BT Music                                   │
- │   playback engine (ov 33, + 34-36: file side, EQ)           │
- │   codec front-ends (ov 41-57, one at a time)                │
- │   library build (ov 37-40), updater (ov 8), USB (9-12)      │
- └──────────────┬──────────────────────────────▲───────────────┘
-                │ mailbox (4 channels)         │ decoded PCM (DMA copy)
-                │ OPEN/DECODE/SEEK/CLOSE,      │ file data requests
-                ▼ file-service replies         │
- ┌─────────────────────────────────────────────┴───────────────┐
- │ CORE B (calculation core), HIGHRAM 384 KiB                  │
- │  one codec module (ov 71-80, linked at 0x01000000):         │
- │  MP3 · WMA · AAC · WAV · OGG · FLAC · ALAC · APE · DFF · DSF │
- │  each = shared core-B runtime + one decoder library         │
- │  accelerators: IMDCT36/SYNTH (MP3), HIFIACC (FLAC/ALAC/APE) │
- └─────────────────────────────────────────────────────────────┘
-        PCM out: core A ── DMAC1 ch5 ── I2S1 ── CS43198 DAC ── RT6863 amp ── jacks
+
+PCM out:
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    A["core A"] --> D["DMAC1 ch5"] --> I["I2S1"] --> C["CS43198 DAC"] --> R["RT6863 amp"] --> J["jacks"]
 ```
 
 [AP30, analysis of firmware V1.7.8.] Sizes and windows: [architecture.md](architecture.md). The flash layout is

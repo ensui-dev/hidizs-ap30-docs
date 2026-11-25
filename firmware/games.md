@@ -83,15 +83,13 @@ like the community emulator's (below) could also start them.
 
 ## How a game is launched
 
-```
-main menu (task 0) ── games icon ──► settings task (task 10, overlay 32) with the game menu
-                                         │ game menu = node 0x110 of the settings tree,
-                                         │ string records 272-301; each record's tree header carries an action code
-                                         ▼
-                              menu dispatch: record 0x111 + i  ──►  task switch (task number)
-                                                                        │ task table → overlay number
-                                                                        ▼
-                              the game's overlay is loaded into the main window; its entry window runs
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    MM["main menu (task 0)"] -->|"games icon"| ST["settings task (task 10, overlay 32) with the game menu<br/>game menu = node 0x110 of the settings tree,<br/>string records 272-301; each record's tree header carries an action code"]
+    ST --> MD["menu dispatch: record 0x111 + i"]
+    MD --> TS["task switch (task number)"]
+    TS -->|"task table → overlay number"| GO["the game's overlay is loaded into the main window;<br/>its entry window runs"]
 ```
 
 [AP30.] The main menu opens the settings task with argument 7 for its second item, which is the games icon by the

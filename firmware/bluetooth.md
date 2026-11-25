@@ -72,20 +72,28 @@ and when Bluetooth is switched off) [AP30], presumably so the unpowered module i
 
 The BT Music overlay keeps a small state machine [AP30; state names are descriptive]:
 
+```mermaid
+stateDiagram-v2
+    [*] --> OFF
+    OFF --> On: power-up OK (CV1)
+    state On {
+        [*] --> IDLE
+        IDLE --> CONNECTING: remembered device<br/>(boot / On)
+        IDLE --> SCANNING: Search /<br/>no device
+        SCANNING --> CONNECTING: user picks<br/>a result
+        CONNECTING --> CONNECTING: retry after 5 s<br/>(CH06)
+        CONNECTING --> CONNECTED: CLOK / CHOK / CH
+        CONNECTING --> IDLE: connect error (CLER / CHER),<br/>CT00 sent (cancel,<br/>give up after 30 s)
+        CONNECTED --> IDLE: CTOK (disconnected),<br/>CT00 sent (unpair)
+        note right of SCANNING
+            ends with CSEN (done),
+            or CP00 after 30 s
+        end note
+    }
+    On --> OFF: Off in Settings,<br/>45 s with no link outside the BT screen,<br/>power-off
 ```
-          power-up OK (CV1)
- OFF ───────────────────────────► IDLE ◄─────────────────────────────┐
-  ▲                                │  │                               │
-  │ Off in Settings,               │  │ remembered device            │ CTOK (disconnected),
-  │ 45 s with no link              │  │ (boot / On)                  │ connect error (CLER/CHER),
-  │ outside the BT screen,         │  ▼                               │ CT00 sent (cancel / unpair /
-  │ power-off                      │ CONNECTING ── CLOK / CHOK / CH ──► CONNECTED
-  │                                │  │  (retry after 5 s: CH06,       │
-  │                                │  │   give up after 30 s)          │
-  │                    Search / no │  ▼                               │
-  │                    device      SCANNING ── user picks a result ──► CONNECTING
-  │                                   (CSEN = done, CP00 after 30 s)
-```
+
+*The BT Music state machine. "On" groups the states in which the module is powered; any of them can go back to OFF.*
 
 | Event (firmware side) | Frame sent | When [AP30] |
 |---|---|---|

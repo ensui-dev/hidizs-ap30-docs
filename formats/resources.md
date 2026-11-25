@@ -22,28 +22,34 @@ Rockchip's SDK tools, and what differs between firmware versions. Where each blo
 
 V1.7.8: blob size 0x127A526, **478 images** [AP30].
 
-```
-blob offset
-0x0000  char magic[16]  "ROCK26IMAGERES  "   (14 letters + 2 spaces)
-0x0010  u32  count      478
-0x0014  12 × 0x00
-0x0020  count × image entry (16 bytes):
-          u16 w, u16 h      size in pixels
-          u16 x, u16 y      screen position where the UI draws it
-          u32 size          = w × h × 2
-          u32 offset        of the pixels, from the start of the blob
-0x1E00  zeros up to 0x2200  (table area reserved)
-0x2200  pixels: image after image, in index order, no gaps
-        format RGB565, BIG-endian (high byte first)
-...     count × name record (108 bytes):
-          char name[96]     original BMP file name, NUL-terminated; the bytes after the NUL are
-                            leftovers of the Windows builder's memory (not zeros)
-          u32 offset, u32 w, u32 h      duplicates of the table entry
-end−22  trailer (22 bytes):
-          u16 count
-          u32 total pixel bytes
-          u8  hash[16]
-```
+| Blob offset | Field | Content |
+|---|---|---|
+| 0x0000 | `char magic[16]` | "ROCK26IMAGERES  " (14 letters + 2 spaces) |
+| 0x0010 | `u32 count` | 478 |
+| 0x0014 | 12 × 0x00 | |
+| 0x0020 | count × image entry (16 bytes) | see below |
+| 0x1E00 | zeros up to 0x2200 | table area reserved |
+| 0x2200 | pixels | image after image, in index order, no gaps; format RGB565, BIG-endian (high byte first) |
+| ... | count × name record (108 bytes) | see below |
+| end−22 | trailer (22 bytes) | see below |
+
+| Image entry (16 bytes) | Meaning |
+|---|---|
+| `u16 w, u16 h` | size in pixels |
+| `u16 x, u16 y` | screen position where the UI draws it |
+| `u32 size` | = w × h × 2 |
+| `u32 offset` | of the pixels, from the start of the blob |
+
+| Name record (108 bytes) | Meaning |
+|---|---|
+| `char name[96]` | original BMP file name, NUL-terminated; the bytes after the NUL are leftovers of the Windows builder's memory (not zeros) |
+| `u32 offset, u32 w, u32 h` | duplicates of the table entry |
+
+| Trailer (22 bytes) | Meaning |
+|---|---|
+| `u16 count` | |
+| `u32` | total pixel bytes |
+| `u8 hash[16]` | |
 All [AP30].
 
 * **Pixel format:** 16-bit RGB565 (5 bits red, 6 green, 5 blue), stored **big-endian**. The firmware reads images from
@@ -66,23 +72,23 @@ All [AP30].
 
 V1.7.8: blob size 0x1AF4A4 = 2 + 21 × 4 + 21 × 307 × 0x112 [AP30].
 
-```
-blob offset
-0x0000  u16 nlang                21
-0x0002  u32 block_offset[nlang]  each block = nrec × rec_size bytes, blocks back to back
-0x0056  block 0 … block 20
+| Blob offset | Field | Content |
+|---|---|---|
+| 0x0000 | `u16 nlang` | 21 |
+| 0x0002 | `u32 block_offset[nlang]` | each block = nrec × rec_size bytes, blocks back to back |
+| 0x0056 | block 0 … block 20 | |
 
-record (rec_size bytes):
-  u16 id                 record number (0, 1, 2, …)
-  u16 parent             menu parent record
-  u16 index_in_parent
-  u16 first_child
-  u16 prev, next         linked-list neighbours
-  u16 function_index     menu leaf number, 0xFFFF for non-leaves (see below)
-  u16 n_children
-  u16 children[C]        0xFFFF = empty slot
-  u16 text[…]            UTF-16LE, NUL-terminated, zero-padded to the end of the record
-```
+| Record field (rec_size bytes) | Meaning |
+|---|---|
+| `u16 id` | record number (0, 1, 2, …) |
+| `u16 parent` | menu parent record |
+| `u16 index_in_parent` | |
+| `u16 first_child` | |
+| `u16 prev, next` | linked-list neighbours |
+| `u16 function_index` | menu leaf number, 0xFFFF for non-leaves (see below) |
+| `u16 n_children` | |
+| `u16 children[C]` | 0xFFFF = empty slot |
+| `u16 text[…]` | UTF-16LE, NUL-terminated, zero-padded to the end of the record |
 All [AP30].
 
 **The layout changes between firmware versions** [AP30]:

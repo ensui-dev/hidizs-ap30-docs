@@ -15,21 +15,14 @@ carry over, and where the AP30 differs.
 
 ## In one picture
 
-```
-                    Rockchip RKNanoD (2 × Cortex-M3, 1 MB SRAM)
-                    + Rockchip "RKnano SDK" (bare-metal, overlays, core-B decoders)
-                                         │
-                ┌────────────────────────┴─────────────────────────┐
-                │                                                  │
-    Snowsky / FiiO Echo Mini (2025-)                    Hidizs AP30 Music Boy (2026-)
-    320×170 panel, 2× CS43131                           296×240 panel, CS43198 + RT6863
-    USB DAC = RKNanoD itself (overlay 11)               USB DAC = separate Realtek ALC5686
-    HIFIECnn.IMG / MINIVnnn.IMG / ECHOMINI.IMG          HIFIYFnn.IMG / ECHOMINI.IMG
-    loader 4.06                                         loader 4.16
-                │                                                  │
-    community: echo-mini-newfw (ETUDE), ReChord,        community: hidizs-ap30-game-emu,
-    EchoPod, RECHO, Customizer, flame-ocean,            this collection
-    snowsky recovery, echo-mini-opus
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    SOC["Rockchip RKNanoD (2 × Cortex-M3, 1 MB SRAM)<br/>+ Rockchip “RKnano SDK” (bare-metal, overlays, core-B decoders)"]
+    SOC --> EM["<b>Snowsky / FiiO Echo Mini (2025-)</b><br/>320×170 panel, 2× CS43131<br/>USB DAC = RKNanoD itself (overlay 11)<br/>HIFIECnn.IMG / MINIVnnn.IMG / ECHOMINI.IMG<br/>loader 4.06"]
+    SOC --> AP["<b>Hidizs AP30 Music Boy (2026-)</b><br/>296×240 panel, CS43198 + RT6863<br/>USB DAC = separate Realtek ALC5686<br/>HIFIYFnn.IMG / ECHOMINI.IMG<br/>loader 4.16"]
+    EM --> EMC["community: echo-mini-newfw (ETUDE), ReChord,<br/>EchoPod, RECHO, Customizer, flame-ocean,<br/>snowsky recovery, echo-mini-opus"]
+    AP --> APC["community: hidizs-ap30-game-emu,<br/>this collection"]
 ```
 
 Tags on these pages: [EM] marks an Echo Mini fact not checked on the AP30; [AP30] marks what we confirmed in the

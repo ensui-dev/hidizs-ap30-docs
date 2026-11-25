@@ -34,22 +34,17 @@ tagged otherwise.
 
 ## The stack
 
-```
- media library (records in part 1)            file browser · player · e-book · pictures · USB disk
-          │                                            │ files opened by (directory cluster, entry index),
-          │                                            │ fixed files by 8.3 name
-          ▼                                            ▼
- FAT layer: FAT16 / FAT32 / exFAT, VFAT long names, exFAT entry sets, 8 file handles, ONE mounted volume
-          │   one-sector FAT cache (write-back), one-sector directory cache, no data cache
-          ▼
- storage devices: 0x30000 firmware area · 0x30001 data partition · 0x30002 user volume · 0x40000 microSD
-          │   byte-granular reader for the firmware area and part 1 (3-sector cache for part 1)
-          │   every call made with the deferred audio interrupts held off
-          ▼
- card layer: identify SD or MMC, CMD17/18 read, CMD24/25 write, byte or block addressing
-          ▼
- host driver: DesignWare-style SD/MMC host, PIO (CPU copies the FIFO), two instances
-     SDMMC 0x60020000 (microSD, IRQ 4)        EMMC 0x60030000 (internal flash, IRQ 3)
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    ML["media library (records in part 1)"] --> FAT
+    APPS["file browser · player · e-book · pictures · USB disk"] -->|"files opened by (directory cluster, entry index),<br/>fixed files by 8.3 name"| FAT
+    FAT["FAT layer: FAT16 / FAT32 / exFAT, VFAT long names, exFAT entry sets,<br/>8 file handles, ONE mounted volume<br/>one-sector FAT cache (write-back), one-sector directory cache, no data cache"]
+    FAT --> DEV["storage devices: 0x30000 firmware area · 0x30001 data partition ·<br/>0x30002 user volume · 0x40000 microSD<br/>byte-granular reader for the firmware area and part 1 (3-sector cache for part 1)<br/>every call made with the deferred audio interrupts held off"]
+    DEV --> CARD["card layer: identify SD or MMC, CMD17/18 read, CMD24/25 write,<br/>byte or block addressing"]
+    CARD --> HOST["host driver: DesignWare-style SD/MMC host,<br/>PIO (CPU copies the FIFO), two instances"]
+    HOST --> SDMMC["SDMMC 0x60020000<br/>(microSD, IRQ 4)"]
+    HOST --> EMMC["EMMC 0x60030000<br/>(internal flash, IRQ 3)"]
 ```
 
 [AP30, analysis of firmware V1.7.8.] The hardware (controllers, the internal chip, the slot) is described in
@@ -91,18 +86,16 @@ reserved read (tables at 0x0306f480 for the internal flash and 0x0306f4a8 for th
 
 Physical sectors of 512 bytes. "Loader LBA" = physical − 0x2000, the numbering the boot loader's USB mode uses.
 
-```
-physical            loader LBA        size      content
-0x000000-0x00003F   (hidden)          32 KiB    unknown, not read by the firmware [?]
-0x000040-0x0017FF   (hidden)          ~3 MiB    boot area: IDB copies 0-4 (boot loader), identity sector;
-                                                the firmware reads/writes IDB copy 0 sectors 1-2 (FWUP tag)
-0x001800-0x001BFF   (hidden)          512 KiB   a small reserved area with its own read/write routines
-0x001C00-0x001FFF   (hidden)          512 KiB   unknown [?]
-0x002000-0x010FFF   0x00000-0x0EFFF   30 MiB    part 0, FW1 slot
-0x011000-0x01FFFF   0x0F000-0x1DFFF   30 MiB    part 0, FW2 slot (offset = half of part 0)
-0x020000-0x083FFF   0x1E000-0x81FFF   200 MiB   part 1, data partition
-0x084000-end        0x82000-0xEDFFF   216 MiB   part 2, user volume: MBR, FAT32 at +0x40
-```
+| Physical | Loader LBA | Size | Content |
+|---|---|---|---|
+| 0x000000-0x00003F | (hidden) | 32 KiB | unknown, not read by the firmware [?] |
+| 0x000040-0x0017FF | (hidden) | ~3 MiB | boot area: IDB copies 0-4 (boot loader), identity sector; the firmware reads/writes IDB copy 0 sectors 1-2 (FWUP tag) |
+| 0x001800-0x001BFF | (hidden) | 512 KiB | a small reserved area with its own read/write routines |
+| 0x001C00-0x001FFF | (hidden) | 512 KiB | unknown [?] |
+| 0x002000-0x010FFF | 0x00000-0x0EFFF | 30 MiB | part 0, FW1 slot |
+| 0x011000-0x01FFFF | 0x0F000-0x1DFFF | 30 MiB | part 0, FW2 slot (offset = half of part 0) |
+| 0x020000-0x083FFF | 0x1E000-0x81FFF | 200 MiB | part 1, data partition |
+| 0x084000-end | 0x82000-0xEDFFF | 216 MiB | part 2, user volume: MBR, FAT32 at +0x40 |
 
 [AP30, measured on a device with a 983,040-sector (480 MiB) chip.] The size of part 0 ("system zone", 60 MiB here)
 and the FW2 offset come from IDB sector 1; the size of part 1 is a **constant 200 MiB** set during boot in V1.7.8;
@@ -280,16 +273,16 @@ The main menu checks the flag on every pass and starts task 13 when it is set ([
 Observed on a device: favourites disappear after the microSD card is removed and re-inserted, but survive a hard
 power cut with the card left in [measured on a device]. The code explains it [AP30]:
 
-```
-RAM list = favourites of the disk that was current at boot (say: microSD, from block 3)
-
-card removed  ─► current disk switches to internal ─► library rebuild of the INTERNAL disk
-                 scan keeps only RAM entries found on the internal disk  ─► none match (they are SD locations)
-                 ─► empty list saved to block 2 (internal)               ─► RAM list now empty
-
-card inserted ─► current disk switches to microSD   ─► library rebuild of the SD
-                 scan keeps only RAM entries found on the SD             ─► RAM list is empty
-                 ─► empty list saved to block 3 (microSD)                ─► SD favourites gone for good
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    S0["RAM list = favourites of the disk that was current at boot<br/>(say: microSD, from block 3)"]
+    S0 --> R1["card removed → current disk switches to internal<br/>→ library rebuild of the INTERNAL disk"]
+    R1 --> R2["scan keeps only RAM entries found on the internal disk<br/>→ none match (they are SD locations)"]
+    R2 --> R3["empty list saved to block 2 (internal)<br/>→ RAM list now empty"]
+    R3 --> I1["card inserted → current disk switches to microSD<br/>→ library rebuild of the SD"]
+    I1 --> I2["scan keeps only RAM entries found on the SD<br/>→ RAM list is empty"]
+    I2 --> I3["empty list saved to block 3 (microSD)<br/>→ SD favourites gone for good"]
 ```
 
 The bug: every rebuild filters **the list currently in RAM** against the disk it scans and saves the result to **that

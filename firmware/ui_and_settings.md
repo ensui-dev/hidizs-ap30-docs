@@ -27,20 +27,22 @@ pages (About, date and time, custom EQ, factory reset). Everything is from V1.7.
 
 The OS layer, tasks and messages are described in [architecture.md](architecture.md). The short version for the UI:
 
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    ML["main loop (never returns)"] --> CT["current task<br/>(one of 48; each task = one overlay + one entry window)"]
+    CT --> WS
+    subgraph WS["window stack"]
+        direction TB
+        W1["popup (top window)"] --- W2["list / page"] --- W3["task window"]
+    end
+    ML --> SV["service list<br/>(background services: player, image decoder, USB, ...)"]
+    ML --> MF["message flags<br/>(one bit per message number; set / test-and-clear / test)"]
 ```
-main loop (never returns)
-  └─ current task  (one of 48; each task = one overlay + one entry window)
-       └─ window stack            top window
-            ┌──────────────┐  ◄── key handler runs for the top window only
-            │ popup        │
-            ├──────────────┤
-            │ list / page  │      service handler runs for EVERY window, top down
-            ├──────────────┤
-            │ task window  │      paint runs after that (skipped while the key lock is on)
-            └──────────────┘
-  └─ service list  (background services: player, image decoder, USB, ...)
-  └─ message flags (one bit per message number; set / test-and-clear / test)
-```
+
+* The **key handler** runs for the top window only.
+* The **service handler** runs for EVERY window, top down.
+* **Paint** runs after that (skipped while the key lock is on).
 
 * **Window record** [AP30]: seven words: child, parent, service handler (+8), key handler (+0xc), paint handler
   (+0x10), init (+0x14), deinit (+0x18). Opening a popup pushes a window on top; closing a stack runs every
@@ -233,21 +235,12 @@ writes them), but their offsets are not mapped yet [?].
 
 [AP30 unless tagged]
 
-```
-internal storage (physical sectors)
-0x0000_0000 ┌──────────────┐
-            │ IDB / loader │  hidden from the loader's LBA space
-0x0000_2000 ├──────────────┤
-            │ FW1, FW2     │  part 0 "system zone"
-0x0002_0000 ├──────────────┤  part 1, the reserved / config partition (200 MiB)
-            │ block 0      │◄── settings record (this page)
-            │ block 1      │    e-book bookmarks
-            │ block 2, 3   │    favourites (internal, microSD)
-            │ ...          │    media library database
-0x0008_4000 ├──────────────┤
-            │ user volume  │  FAT32, USB LUN 0
-            └──────────────┘
-```
+| Physical sector | Area | Content |
+|---|---|---|
+| 0x0000_0000 | IDB / loader | hidden from the loader's LBA space |
+| 0x0000_2000 | FW1, FW2 | part 0 "system zone" |
+| 0x0002_0000 | part 1, the reserved / config partition (200 MiB) | block 0: **settings record (this page)** · block 1: e-book bookmarks · block 2, 3: favourites (internal, microSD) · ...: media library database |
+| 0x0008_4000 | user volume | FAT32, USB LUN 0 |
 
 * Block 0 of part 1 (loader LBA 0x1E000, physical 0x20000) holds the settings, written through a 0x800-byte buffer
   that also carries "SAVE" and "INFO" magic words [AP30]. A device dump shows a "SAVE" header with the firmware date

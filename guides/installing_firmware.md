@@ -46,18 +46,20 @@ Done on a device: the factory firmware was updated to V1.7.8 this way; afterward
 
 [AP30, firmware analysis of V1.7.8; device observations agree]
 
-```
-boot ─► boot overlay scans the internal disk's root:
-          ECHOMINI.IMG?  → update number 0xF5
-          else HIFIYF00.IMG … HIFIYF89.IMG → update number nn (the last one found wins)
-      ─► main menu shows the "updating" screen, loads the updater overlay (section 8)
-updater:
-   open the file; check "RKnanoFW" at +0x1F8 and that the header copy at header.size matches   (NO CRC)
-   length L = (header.size + 0x104000) & ~0xFFFFF
-   FW2 slot: first 8 KiB := 0xFF  →  write the data in 8 KiB blocks  →  write the first 8 KiB (header) LAST
-             every block read back and compared
-   FW1 slot: same procedure, copying from FW2
-   delete the update file  →  "success, reboot"  →  save settings  →  restart
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    B["boot"] --> SC["boot overlay scans the internal disk's root"] --> Q{"ECHOMINI.IMG?"}
+    Q -->|yes| N1["update number 0xF5"]
+    Q -->|"else HIFIYF00.IMG … HIFIYF89.IMG"| N2["update number nn<br/>(the last one found wins)"]
+    N1 --> MM
+    N2 --> MM
+    MM["main menu shows the #quot;updating#quot; screen,<br/>loads the updater overlay (section 8)"]
+    MM --> U1["updater: open the file; check #quot;RKnanoFW#quot; at +0x1F8<br/>and that the header copy at header.size matches (NO CRC)"]
+    U1 --> U2["length L = (header.size + 0x104000) & ~0xFFFFF"]
+    U2 --> U3["FW2 slot: first 8 KiB := 0xFF → write the data in 8 KiB blocks<br/>→ write the first 8 KiB (header) LAST<br/>every block read back and compared"]
+    U3 --> U4["FW1 slot: same procedure, copying from FW2"]
+    U4 --> U5["delete the update file → #quot;success, reboot#quot; → save settings → restart"]
 ```
 
 * A power cut during the update leaves at most one slot without a valid header (the header is written last), and the

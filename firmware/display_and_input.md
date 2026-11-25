@@ -28,17 +28,13 @@ page is about what the firmware does with them.
 
 ## Display driver
 
-```
-UI code ──► draw image by index / draw text / fill
-              │
-              ▼
-         frame buffer in RAM (296×240 RGB565, two pieces)      dirty row band [min y .. max y]
-              │  once per main-loop pass
-              ▼
-         LCD driver table (15 entries, RAM 0x0306fd14) ──► panel driver = overlay 4
-              │                                               set window · DMA block · standby · wake
-              ▼
-         DMAC1 (request 14) ──► VOP data register 0x6007002c ──► i8080 8-bit bus ──► panel
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    UI["UI code"] -->|"draw image by index / draw text / fill"| FB["frame buffer in RAM (296×240 RGB565, two pieces)<br/>dirty row band [min y .. max y]"]
+    FB -->|"once per main-loop pass"| DT["LCD driver table (15 entries, RAM 0x0306fd14)"]
+    DT --> PD["panel driver = overlay 4<br/>set window · DMA block · standby · wake"]
+    DT --> DMA["DMAC1 (request 14)"] --> VOP["VOP data register 0x6007002c"] --> BUS["i8080 8-bit bus"] --> P["panel"]
 ```
 
 * **Driver selection** [AP30]: the firmware image's descriptor block (after the section table) holds a driver index
@@ -123,14 +119,11 @@ The backlight timeout values are in [power_management.md](power_management.md#ba
 
 [AP30 unless tagged]
 
-```
-SysTick 10 ms ──► software timer, period 1 tick ──► key tick
-                       1. sample the wheel phases
-                       2. scan keys: Power (GPIO2_5) first, then the ladder (ADC channel 1)
-                       3. start the next ADC conversion
-TIMER0 every 200 µs ──► sample the wheel phases again (fast path)
-UI ──► "get key event": wheel step first, then the pending key event (filtered by the key lock)
-```
+| Trigger | Period | Work |
+|---|---|---|
+| SysTick → software timer (period 1 tick) → key tick | 10 ms | (1) sample the wheel phases; (2) scan keys: Power (GPIO2_5) first, then the ladder (ADC channel 1); (3) start the next ADC conversion |
+| TIMER0 | 200 µs | sample the wheel phases again (fast path) |
+| UI "get key event" | when the UI asks | wheel step first, then the pending key event (filtered by the key lock) |
 
 * **ADC rotation**: conversions run channel 1, 1, 1, 0 (keys three times, battery once). Ladder scans advance only on
   ticks with a fresh channel-1 sample, so ladder timings stretch by about 4/3 over the nominal tick counts

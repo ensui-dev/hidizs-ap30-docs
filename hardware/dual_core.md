@@ -111,23 +111,23 @@ stated [TRM ch5.4; ?].
 
 Required order, from the TRM, the stock firmware and the Echo Mini work:
 
-```
- core A                                                core B
- ──────                                                ──────
- 1 power PD_HIGH (PWRDN_CON bit 1 = 0), wait ST bit 1 = 0       (no power)
- 2 ungate mailbox, async bridge, HIGHRAM banks,
-   hclk_high, high matrix, hclk_cal_core
- 3 release mailbox, async bridge, high matrix,
-   HIGHRAM0/1 resets; keep cal_core in reset                   (in reset)
- 4 mailbox to a known state (clear B->A status,
-   enable wanted B->A channel IRQs in core A's NVIC)
- 5 choose core B's divider; extra RAM cycle if fast
- 6 copy the program: vector table + code at 0x01000000
-   (= core B's address 0), data at 0x01020000
- 7 write parameters into shared RAM (optional)
- 8 release cal_core  ───────────────────────────────►  fetch SP from 0x00000000, PC from 0x00000004
-                                                      init RAM, set VTOR, enable mailbox IRQs
- 9 wait for "ready"  ◄───────────────────────────────  send ready over the mailbox
+```mermaid
+sequenceDiagram
+    participant A as core A
+    participant B as core B
+    Note over B: no power
+    Note over A: 1. power PD_HIGH (PWRDN_CON bit 1 = 0), <br/>wait for ST bit 1 = 0
+    Note over A: 2. ungate mailbox, async bridge, HIGHRAM banks,<br/>hclk_high, high matrix, hclk_cal_core
+    Note over A: 3. release mailbox, async bridge, high matrix,<br/>HIGHRAM0/1 resets<br/>(keep cal_core in reset)
+    Note over B: in reset
+    Note over A: 4. mailbox to a known state <br/>(clear B→A status,<br/>enable the wanted B→A channel IRQs in core A's NVIC)
+    Note over A: 5. choose core B's divider<br/>(extra RAM cycle if fast)
+    Note over A: 6. copy the program: vector table + code at 0x01000000 <br/>(= core B's address 0), data at 0x01020000
+    Note over A: 7. write parameters into shared RAM (optional)
+    A->>B: 8. release cal_core
+    Note over B: fetch SP from 0x00000000, PC from 0x00000004<br/>init RAM, set VTOR, enable mailbox IRQs
+    B->>A: send "ready" over the mailbox
+    Note over A: 9. wait for "ready"
 ```
 
 1. **Power PD_HIGH** and wait for `PMU_PWRDN_ST` bit 1 to read 0 [TRM ch5.3.1, ch5.4]. Nothing in HIGHRAM, HIFIACC or
@@ -192,10 +192,11 @@ same as Rockchip's Linux `rockchip-mailbox` driver [AP30; EM; WEB]:
 | `+0x30 + 8·ch` | B→A | B2A_CMD(*ch*) | |
 | `+0x34 + 8·ch` | B→A | B2A_DAT(*ch*) | |
 
-```
-           A2B_CMD(ch), A2B_DAT(ch) ──► A2B_STATUS bit ch ──(A2B_INTEN bit ch)──► core B IRQ 9+ch
- core A                                                                                         core B
-           core A IRQ 9+ch ◄──(B2A_INTEN bit ch)── B2A_STATUS bit ch ◄── B2A_CMD(ch), B2A_DAT(ch)
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    A["core A"] --> a1["A2B_CMD(ch), A2B_DAT(ch)"] --> a2["A2B_STATUS bit ch"] -->|"A2B_INTEN bit ch"| a3["core B IRQ 9+ch"] --> B["core B"]
+    B --> b1["B2A_CMD(ch), B2A_DAT(ch)"] --> b2["B2A_STATUS bit ch"] -->|"B2A_INTEN bit ch"| b3["core A IRQ 9+ch"] --> A
 ```
 
 * **4 channels per direction, each a single slot: no FIFO, no queue.** A second message overwrites the first if the

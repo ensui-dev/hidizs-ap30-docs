@@ -26,13 +26,16 @@ constraints that make or break an image.
 
 ## Overview
 
-```
-HIFIYF18.IMG ──unpack──► header fields + stage3 + font0 + font1 + gbk + strtbl + imageres
-                                                              │           │
-                                         strings ⇄ text (UTF-16)    images ⇄ PNG (RGB565 BE)
-                                                              │           │
-             ◄──repack── new blobs back to back, new offsets/sizes, 8 KiB pad, header copy, pad, RKCRC32
-ECHOMINI.IMG ──copy to internal disk, restart──► stock updater installs it
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    IMG["HIFIYF18.IMG"] -->|unpack| PARTS["header fields + stage3 + font0 + font1 + gbk + strtbl + imageres"]
+    PARTS -->|strtbl| STR["strings ⇄ text (UTF-16)"]
+    PARTS -->|imageres| IMGS["images ⇄ PNG (RGB565 BE)"]
+    STR --> RP
+    IMGS --> RP
+    RP["repack: new blobs back to back, new offsets/sizes,<br/>8 KiB pad, header copy, pad, RKCRC32"] --> OUT["ECHOMINI.IMG"]
+    OUT -->|"copy to internal disk, restart"| UPD["stock updater installs it"]
 ```
 
 **Start with a round trip:** unpack an official image and repack it without changes. The result must be

@@ -27,20 +27,21 @@ copy wins" routine exists in the image, but nothing calls it in V1.7.8. The imag
 
 ## Summary
 
-```
-boot ── overlay 1: mount the user volume (format on failure)
-          ├─ ECHOMINI.IMG present?            → file number 0xF5, message 0x192
-          └─ else HIFIYF00 … HIFIYF89.IMG     → file number nn (last one found wins), message 0x192
-main menu (overlay 21) sees message 0x192
-          ├─ pass 1: draw the "updating" screen, mark the library dirty, re-queue 0x192
-          └─ pass 2: load overlay 8 → updater
-updater (overlay 8)
-          ├─ open the file, check magic "RKnanoFW" + header == header copy   (no CRC, no version)
-          ├─ FW2 slot: invalidate first 8 KiB → write the rest → write the first 8 KiB (header) last
-          │            every block read back and compared
-          ├─ copy FW2 → FW1 the same way (FW1 header invalidated first, written last)
-          └─ delete the file → save settings → watchdog reboot
-next boot ── FW1 == FW2 == new image
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    B["boot: overlay 1 mounts the user volume (format on failure)"] --> Q{"ECHOMINI.IMG present?"}
+    Q -->|yes| F1["file number 0xF5, message 0x192"]
+    Q -->|"else HIFIYF00 … HIFIYF89.IMG"| F2["file number nn (last one found wins), message 0x192"]
+    F1 --> MM
+    F2 --> MM
+    MM["main menu (overlay 21) sees message 0x192"] --> P1["pass 1: draw the #quot;updating#quot; screen,<br/>mark the library dirty, re-queue 0x192"]
+    P1 --> P2["pass 2: load overlay 8 → updater"]
+    P2 --> U1["updater (overlay 8): open the file, check magic #quot;RKnanoFW#quot;<br/>+ header == header copy (no CRC, no version)"]
+    U1 --> U2["FW2 slot: invalidate first 8 KiB → write the rest → write the first 8 KiB (header) last<br/>every block read back and compared"]
+    U2 --> U3["copy FW2 → FW1 the same way<br/>(FW1 header invalidated first, written last)"]
+    U3 --> U4["delete the file → save settings → watchdog reboot"]
+    U4 --> NB(["next boot: FW1 == FW2 == new image"])
 ```
 
 All of it [AP30], traced in V1.7.8 and confirmed on a device (official install of V1.7.8 over the factory 5.0.0, a
@@ -104,13 +105,10 @@ either ([boot_loader.md](boot_loader.md)) [AP30].
 
 ## 4. Writing: FW2 first, header last, then FW1
 
-```
-flash (loader LBA)          step 1                  step 2                   step 3
-0x00000  FW1  [hdr|data]    old                     old                      [FFFF…|data…] → [hdr|new]
-0x0f000  FW2  [hdr|data]    [FFFF…|old] → [FFFF…|new] → [hdr|new]            [hdr|new]
-                            invalidate header,      write header last        copy FW2 → FW1 the same way
-                            write data
-```
+| Slot (loader LBA) | Step 1: invalidate header, write data | Step 2: write header last | Step 3: copy FW2 → FW1 the same way |
+|---|---|---|---|
+| FW1 (0x00000) | old | old | header erased (FFFF…), data written → header written: new image |
+| FW2 (0x0f000) | header erased (FFFF…), data old → new | header written: new image | new image |
 
 [AP30]
 

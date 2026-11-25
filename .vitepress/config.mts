@@ -93,6 +93,15 @@ export default defineConfig({
     // GitHub on the site, and links to README.md go to the folder index, while the Markdown keeps
     // plain relative links that also work on github.com.
     config: (md) => {
+      // ```mermaid blocks: GitHub renders them natively; on the site the theme renders them in the browser
+      // (.vitepress/theme/mermaid.ts). Until then, and without JavaScript, the source shows as a code block.
+      const fence = md.renderer.rules.fence!
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const tok = tokens[idx]
+        if (tok.info.trim() !== 'mermaid') return fence(tokens, idx, options, env, self)
+        const src = encodeURIComponent(tok.content)
+        return `<div class="mermaid-diagram" data-src="${src}" v-pre><pre class="mermaid-source"><code>${md.utils.escapeHtml(tok.content)}</code></pre></div>`
+      }
       md.core.ruler.push('repo_file_links', (state) => {
         const page: string = (state.env as any).relativePath ?? ''
         for (const block of state.tokens) {

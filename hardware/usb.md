@@ -51,12 +51,14 @@ More photos: [photos.md](photos.md).
 
 ## Connector and switch
 
-```
-                 USB-C ─── VBUS ──────────────────────────► charger, regulator enable (diode-OR), VBUS sense (GRF)
-                   │
-                   └── D+ / D- ──► "7227" DPDT switch [?] ──┬── side 1 ──► RKNanoD USB PHY  (GPIO0_14 = 1, default)
-                                   select = GPIO0_14 [?]     └── side 2 ──► Realtek ALC5686  (GPIO0_14 = 0, DAC mode)
-                                   ("mBJ3H" SOT-23-6 next to the connector: ESD array or switch [?])
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    U["USB-C"] -->|VBUS| V["charger, regulator enable (diode-OR),<br/>VBUS sense (GRF)"]
+    U -->|"D+ / D-"| SW["“7227” DPDT switch [?]<br/>select = GPIO0_14 [?]"]
+    SW -->|"side 1 (GPIO0_14 = 1, default)"| RK["RKNanoD USB PHY"]
+    SW -->|"side 2 (GPIO0_14 = 0, DAC mode)"| RT["Realtek ALC5686"]
+    ESD["“mBJ3H” SOT-23-6 next to the connector:<br/>ESD array or switch [?]"] -.- U
 ```
 
 - The `7227` marking and its 10-lead package match the 7227 family of DPDT analog / USB 2.0 switches (WillSemi

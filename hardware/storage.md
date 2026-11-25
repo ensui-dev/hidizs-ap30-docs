@@ -164,16 +164,15 @@ Physical sectors of the internal storage (512-byte sectors). "Loader LBA" = the 
 interface uses = physical − 0x2000 [AP30, measured]. Full details, the IDB structure, and the reserved-partition
 layout: [../formats/idb_and_flash_layout.md](../formats/idb_and_flash_layout.md).
 
-```
-physical            loader LBA          size       content
-0x000000-0x001FFF   (not reachable)     4 MiB      boot area: IDB / boot loader copies from sector 0x40,
-                                                   reserved areas; never written by updates
-0x002000-0x010FFF   0x00000-0x0EFFF     30 MiB     FW1 slot (RKnanoFW image + header copy)
-0x011000-0x01FFFF   0x0F000-0x1DFFF     30 MiB     FW2 slot (boot fallback when FW1 is invalid)
-0x020000-0x083FFF   0x1E000-0x81FFF     200 MiB    reserved partition: settings, bookmarks, favourites, media library
-0x084000-end        0x82000-0xEDFFF     216 MiB    user volume: MBR, FAT32 at +0x40 (USB mass-storage LUN 0)
-end = 983 040 sectors (480 MiB); the loader sees 974 848 sectors (= 983 040 − 0x2000)
-```
+| Physical | Loader LBA | Size | Content |
+|---|---|---|---|
+| 0x000000-0x001FFF | (not reachable) | 4 MiB | boot area: IDB / boot loader copies from sector 0x40, reserved areas; never written by updates |
+| 0x002000-0x010FFF | 0x00000-0x0EFFF | 30 MiB | FW1 slot (RKnanoFW image + header copy) |
+| 0x011000-0x01FFFF | 0x0F000-0x1DFFF | 30 MiB | FW2 slot (boot fallback when FW1 is invalid) |
+| 0x020000-0x083FFF | 0x1E000-0x81FFF | 200 MiB | reserved partition: settings, bookmarks, favourites, media library |
+| 0x084000-end | 0x82000-0xEDFFF | 216 MiB | user volume: MBR, FAT32 at +0x40 (USB mass-storage LUN 0) |
+
+End = 983 040 sectors (480 MiB); the loader sees 974 848 sectors (= 983 040 − 0x2000).
 
 > **Warning:** writing to the internal flash (through loader USB mode or your own firmware) is risky. **Never write
 > physical sectors 0x0000-0x1FFF**: they hold the boot loader, which is the recovery path (losing it leaves only

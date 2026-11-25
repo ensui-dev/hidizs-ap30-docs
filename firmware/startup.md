@@ -26,31 +26,18 @@ an update file was found) and the **media library rebuild** (if the settings say
 
 ## The chain at a glance
 
-```
-power on / reset
-   │
-   ▼
-MaskROM ─► IDB loader (stages A, B, C) ─ marker / D-pad Right check ─► loader USB mode (see boot_loader.md)
-   │ copies sections 0, 1, 2 of FW1 (or FW2 on fallback), zeroes their bss,
-   │ disables all NVIC lines, VTOR = 0x03004000, SP/PC from that table
-   ▼
-boot table @0x03004000   SP = 0x03004000, reset = 0x030563b9 (Thumb)
-   │
-   ▼
-trampoline @0x030563b8   clear SHCSR, stop SysTick, disable all NVIC lines, zero section 0 bss,
-   │                     VTOR = 0x03050000, VECTCLRACTIVE, load SP/PC from that table
-   ▼
-runtime table @0x03050000   SP = 0x03004000, reset = main init 0x030631d6
-   │
-   ▼
-main init  ─► pins safe ─► clocks/IRQs ─► SysTick 10 ms ─► storage ─► settings ─► ADC ─► battery check
-   │          ─► fonts / images / LCD ─► logo ─► keys ─► file system + update scan
-   │          ─► first task ─► services ─► free space ─► watchdog ─► RTC check ─► last disk
-   ▼
-main loop: task 0 (main menu) or 12 (charge screen)
-   │
-   ├─ update file found?   ─► main menu runs the updater ─► reboot by watchdog
-   └─ library dirty?       ─► task 13 "Updating Library…" ─► back to the main menu
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    P(["power on / reset"]) --> MR["MaskROM"] --> IDB["IDB loader (stages A, B, C)"]
+    IDB -->|"marker / D-pad Right check"| LU["loader USB mode (see boot_loader.md)"]
+    IDB -->|"copies sections 0, 1, 2 of FW1 (or FW2 on fallback), zeroes their bss,<br/>disables all NVIC lines, VTOR = 0x03004000, SP/PC from that table"| BT["boot table @0x03004000<br/>SP = 0x03004000, reset = 0x030563b9 (Thumb)"]
+    BT --> TR["trampoline @0x030563b8<br/>clear SHCSR, stop SysTick, disable all NVIC lines, zero section 0 bss,<br/>VTOR = 0x03050000, VECTCLRACTIVE, load SP/PC from that table"]
+    TR --> RT["runtime table @0x03050000<br/>SP = 0x03004000, reset = main init 0x030631d6"]
+    RT --> MI["main init<br/>pins safe → clocks/IRQs → SysTick 10 ms → storage → settings → ADC → battery check<br/>→ fonts / images / LCD → logo → keys → file system + update scan<br/>→ first task → services → free space → watchdog → RTC check → last disk"]
+    MI --> ML["main loop: task 0 (main menu) or 12 (charge screen)"]
+    ML -->|"update file found?"| UP["main menu runs the updater → reboot by watchdog"]
+    ML -->|"library dirty?"| LB["task 13 #quot;Updating Library…#quot; → back to the main menu"]
 ```
 
 [AP30, analysis of firmware V1.7.8; the loader part: [boot_loader.md](boot_loader.md).]
@@ -186,15 +173,19 @@ returns to the task it was started from [AP30]. Details of the build: [storage_a
 This is the one start-up behaviour owners notice: after a hard power cut the player shows "Library / Updating
 Library…" before the main menu; after a normal power-off it does not.
 
-```
-normal power-off (menu, Power held 2 s, low battery, timers)
-   └─► settings saved with clean-shutdown mark = 0x55aa ─► power down
-next boot: mark == 0x55aa ─► library NOT dirty ─► main menu directly
-            (the mark is cleared and saved again at once)
-
-hard power cut (Power held ~8 s: external reset), crash, battery pulled
-   └─► mark still cleared from the last boot
-next boot: mark != 0x55aa ─► library dirty ─► main menu ─► task 13 "Updating Library…" ─► main menu
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TB
+    subgraph CLEAN["clean"]
+        direction TB
+        N1["normal power-off<br/>(menu, Power held 2 s, low battery, timers)"] --> N2["settings saved with<br/>clean-shutdown mark = 0x55aa"] --> N3["power down"]
+        N3 --> N4["next boot: mark == 0x55aa"] --> N5["library NOT dirty → main menu directly<br/>(the mark is cleared and saved again at once)"]
+    end
+    subgraph UNCLEAN["unclean"]
+        direction TB
+        H1["hard power cut (Power held ~8 s: external reset),<br/>crash, battery pulled"] --> H2["mark still cleared<br/>from the last boot"]
+        H2 --> H3["next boot: mark != 0x55aa"] --> H4["library dirty → main menu"] --> H5["task 13 #quot;Updating Library…#quot;"] --> H6["main menu"]
+    end
 ```
 
 | Observation | Explanation | Tag |

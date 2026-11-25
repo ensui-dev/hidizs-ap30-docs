@@ -100,24 +100,26 @@ The System Control Space (0xE000E000-0xE000EFFF: NVIC, SysTick, SCB, and the MPU
 
 All blocks are 64 KiB windows unless noted [TRM fig 2-1].
 
-```
- Address        Core A (remap=0)   Core A (remap=1)   Core B             Power domain
- 0x0000_0000 ┬─ BOOT ROM 16K ───── PMU-SRAM 64K ───── HIGHRAM0 alias ─── (alias)
-             │  (0x4000-: rsvd)    (0x1_0000-: rsvd)  128K (0x2_0000-: reserved)
- 0x0100_0000 ├─ HIGHRAM0  128K   "IRAM for core 1"                        PD_HIGH
- 0x0102_0000 ├─ HIGHRAM1  256K   "DRAM for core 1"                        PD_HIGH
- 0x0106_0000 ├─ HIFIACC   64K    lossless-audio accelerator               PD_HIGH
- 0x0107_0000 ├─ DMAC2     64K    2 channels                               PD_HIGH
- 0x0108_0000 ├─ reserved
- 0x0300_0000 ├─ SYSRAM0   320K   "IRAM for core 0"                        PD_LOGIC
- 0x0305_0000 ├─ SYSRAM1   256K   "DRAM for core 0"                        PD_LOGIC
- 0x0309_0000 ├─ PMU-SRAM  64K    (unmapped here when remap=1)             PD_PMU (always on)
- 0x030A_0000 ├─ reserved
- 0x4000_0000 ├─ APB peripherals 0x4002_0000 .. 0x4018_FFFF                PD_LOGIC
- 0x5001_0000 ├─ GRF, PMU, GPIO2   0x5001_0000 .. 0x5003_FFFF              PD_PMU
- 0x6000_0000 ├─ AHB peripherals  0x6000_0000 .. 0x600B_FFFF               PD_LOGIC
- 0xE000_E000 └─ System Control Space (per core, private)
-```
+![Memory map of the RKNanoD, not to scale: address 0 alias, HIGHRAM and accelerators for core B, SYSRAM for core A, PMU-SRAM, peripherals, coloured by power domain.](../images/diagrams/soc-memory-map.svg)
+
+*Not to scale; drawn from the table below (`python3 -I tools/diagrams/memmap.py hardware/soc_rknanod.md "Memory map" images/diagrams/soc-memory-map.svg`).*
+
+| Address | Region | Size | Note | Power domain |
+|---|---|---|---|---|
+| 0x0000_0000 | core A remap=0: BOOT ROM · core A remap=1: PMU-SRAM · core B: HIGHRAM0 alias | 16K / 64K / 128K | the rest is reserved (from 0x4000 / 0x1_0000 / 0x2_0000) | (alias) |
+| 0x0100_0000 | HIGHRAM0 | 128K | "IRAM for core 1" | PD_HIGH |
+| 0x0102_0000 | HIGHRAM1 | 256K | "DRAM for core 1" | PD_HIGH |
+| 0x0106_0000 | HIFIACC | 64K | lossless-audio accelerator | PD_HIGH |
+| 0x0107_0000 | DMAC2 | 64K | 2 channels | PD_HIGH |
+| 0x0108_0000 | reserved | | | |
+| 0x0300_0000 | SYSRAM0 | 320K | "IRAM for core 0" | PD_LOGIC |
+| 0x0305_0000 | SYSRAM1 | 256K | "DRAM for core 0" | PD_LOGIC |
+| 0x0309_0000 | PMU-SRAM | 64K | unmapped here when remap=1 | PD_PMU (always on) |
+| 0x030A_0000 | reserved | | | |
+| 0x4000_0000 | APB peripherals | | 0x4002_0000 .. 0x4018_FFFF | PD_LOGIC |
+| 0x5001_0000 | GRF, PMU, GPIO2 | | 0x5001_0000 .. 0x5003_FFFF | PD_PMU |
+| 0x6000_0000 | AHB peripherals | | 0x6000_0000 .. 0x600B_FFFF | PD_LOGIC |
+| 0xE000_E000 | System Control Space | | per core, private | |
 
 * **One shared map.** Apart from address 0, both cores see the same addresses: core A can read and write HIGHRAM,
   core B can read and write SYSRAM and every peripheral [TRM fig 2-1]. The stock firmware relies on this: core A loads
@@ -187,14 +189,16 @@ references `0x60090000 + 0x0C` from two routines that are never called (a second
 
 ## Power domains
 
-```
-  VD_PMU (always on)                     VD_LOGIC (switchable as a whole in low-power mode)
-  ┌───────────────────────┐             ┌──────────────────────────────┐ ┌──────────────────────────┐
-  │ PD_PMU                │             │ PD_LOGIC                     │ │ PD_HIGH                  │
-  │  PMU, GRF, GPIO2,     │             │  core A, SYSRAM0/1, boot ROM,│ │  core B, HIGHRAM0/1,     │
-  │  PMU-SRAM             │             │  every other peripheral,     │ │  HIFIACC, DMAC2          │
-  │                       │             │  DMAC1, IMDCT36, SYNTH [?]   │ │  (switch: PMU_PWRDN_CON) │
-  └───────────────────────┘             └──────────────────────────────┘ └──────────────────────────┘
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    subgraph VDPMU["VD_PMU (always on)"]
+        PDPMU["<b>PD_PMU</b><br/>PMU, GRF, GPIO2,<br/>PMU-SRAM"]
+    end
+    subgraph VDLOGIC["VD_LOGIC (switchable as a whole in low-power mode)"]
+        PDLOGIC["<b>PD_LOGIC</b><br/>core A, SYSRAM0/1, boot ROM,<br/>every other peripheral,<br/>DMAC1, IMDCT36, SYNTH [?]"]
+        PDHIGH["<b>PD_HIGH</b><br/>core B, HIGHRAM0/1,<br/>HIFIACC, DMAC2<br/>(switch: PMU_PWRDN_CON)"]
+    end
 ```
 
 | Voltage domain | Power domain | Contents | Source |
@@ -264,19 +268,27 @@ references `0x60090000 + 0x0C` from two routines that are never called (a second
 
 ### Clock tree (simplified)
 
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    X["xin24m"] --> SL["÷(n+1), n = MODE_CON[13:8]<br/>(“slow mode”)"]
+    X --> PLL["PLL"]
+    SL --> M0{"MODE_CON[0]"}
+    PLL --> M0
+    M0 --> PMC["PLL_MUX_CLK"]
+    USB["USB PHY 480M"] --> MA{"CLKSEL0[3]"}
+    PMC --> MA
+    USB --> MB{"CLKSEL0[15]"}
+    PMC --> MB
+    MA --> DA["÷1..8 (CLKSEL0[2:0])"] --> CA["core A clock = hclk_sys_core"]
+    CA --> DSA["÷1..8 (CLKSEL0[6:4])"] --> STA["core A SysTick ref (stclk)"]
+    CA --> DP["÷1,2,4,8 (CLKSEL1[9:8])"] --> PCLK["pclk_logic (APB)"]
+    MB --> DB["÷1..8 (CLKSEL0[14:12])"] --> CB["core B clock = hclk_cal_core"]
+    CB --> DSB["÷1..8 (CLKSEL0[10:8])"] --> STB["core B SysTick ref"]
 ```
- xin24m ─┬─► ÷(n+1), n = MODE_CON[13:8] ──┐  "slow mode"
-         └─► PLL ──────────────────────────┴─► MODE_CON[0] ─► PLL_MUX_CLK
-                                                                 │
-          USB PHY 480M ─┐                                        │
-                        ├─(CLKSEL0[3])─► ÷1..8 (CLKSEL0[2:0]) ─► core A clock = hclk_sys_core
-                        │                    └► ÷1..8 (CLKSEL0[6:4]) ─► core A SysTick ref (stclk)
-                        │                                              └► ÷1,2,4,8 (CLKSEL1[9:8]) ─► pclk_logic (APB)
-                        └─(CLKSEL0[15])► ÷1..8 (CLKSEL0[14:12]) ─► core B clock = hclk_cal_core
-                                             └► ÷1..8 (CLKSEL0[10:8]) ─► core B SysTick ref
- Peripheral clocks: CLKSEL2..12 choose 24 MHz or PLL_MUX_CLK (some: USB 480M) and a divider;
- I2S0/I2S1 can also use the ACODEC PLL and a fractional divider.
-```
+
+Peripheral clocks: CLKSEL2..12 choose 24 MHz or PLL_MUX_CLK (some: USB 480M) and a divider; I2S0/I2S1 can also use
+the ACODEC PLL and a fractional divider.
 
 [TRM fig 3-2, 3-3, ch3.7]
 

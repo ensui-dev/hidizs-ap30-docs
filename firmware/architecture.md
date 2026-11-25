@@ -62,31 +62,32 @@ overlay loader. Empty slots in V1.7.8: 2, 3, 13-16, 28, 29, 43-49, 58-62, 70 [AP
 Overlays share RAM windows. Two overlays with the same window can never be loaded at the same time, which is why
 tasks that share a window can never run together.
 
-```
-core A code (SYSRAM)
-0x03050000 ┌─ section 0 code (resident, 185 KiB) ──────────────────────────────────────────┐
-0x0307e300 └────────────────────────────────────────────────────────────────────────────────┘
-0x03080e9c  ov 4   LCD panel driver (chosen by a driver index in the config block)
-0x030815c4 ┌─ MAIN WINDOW: one of these at a time ─────────────────────────────────────────┐
-           │ 1 boot init · 5 library-build screen · 6 charge screen · 10 USB device stack  │
-           │ 17 picture viewer · 21 main menu · 22 library menu · 23 library lists         │
-           │ 27 now playing / lyrics · 30 e-book · 31 file browser · 32 settings           │
-           │ 81-111 games · 112 BT Music                    (13.5 KiB used by the largest) │
-           └────────────────────────────────────────────────────────────────────────────────┘
-0x03081924  ov 7 (free space), ov 37 (CUE + WMA tags), ov 39 (library sort, 0x1dea8: mostly tables)
-0x03082028  ov 8 updater          0x03082400 ov 38 library scan
-0x03082928  ov 11 USB audio       0x03083610 ov 12 USB mass storage
-0x03083030  ov 24-26 library popups / start playback
-0x03084590  ov 9 USB mode menu    0x03084664 ov 18 image service (cover art, thumbnails)
-0x03089654  ov 19 JPEG / ov 20 BMP decoder
-0x0308bf84  ov 33 playback engine (13.9 KiB)
-0x0308f724  ov 34 playback file side · ov 35 EQ tables (data only) · ov 36 equaliser
-0x0308ffbc  codec front-ends 41, 42, 50-57 · ov 40 library stage 3
+**Core A code (SYSRAM)**
 
-core B (HIGHRAM)
-0x01000000  ov 71-80 codec module code (seen by core B at address 0)
-0x01020000  ov 71-80 codec module data (first 0x90 bytes: clock block written by core A)
-```
+| Run address | Occupant |
+|---|---|
+| 0x03050000 | section 0 code (resident, 185 KiB), up to 0x0307e300 |
+| 0x03080e9c | ov 4 LCD panel driver (chosen by a driver index in the config block) |
+| 0x030815c4 | **main window**, one of these at a time: 1 boot init · 5 library-build screen · 6 charge screen · 10 USB device stack · 17 picture viewer · 21 main menu · 22 library menu · 23 library lists · 27 now playing / lyrics · 30 e-book · 31 file browser · 32 settings · 81-111 games · 112 BT Music (13.5 KiB used by the largest) |
+| 0x03081924 | ov 7 (free space), ov 37 (CUE + WMA tags), ov 39 (library sort, 0x1dea8: mostly tables) |
+| 0x03082028 | ov 8 updater |
+| 0x03082400 | ov 38 library scan |
+| 0x03082928 | ov 11 USB audio |
+| 0x03083030 | ov 24-26 library popups / start playback |
+| 0x03083610 | ov 12 USB mass storage |
+| 0x03084590 | ov 9 USB mode menu |
+| 0x03084664 | ov 18 image service (cover art, thumbnails) |
+| 0x03089654 | ov 19 JPEG / ov 20 BMP decoder |
+| 0x0308bf84 | ov 33 playback engine (13.9 KiB) |
+| 0x0308f724 | ov 34 playback file side · ov 35 EQ tables (data only) · ov 36 equaliser |
+| 0x0308ffbc | codec front-ends 41, 42, 50-57 · ov 40 library stage 3 |
+
+**Core B (HIGHRAM)**
+
+| Run address | Occupant |
+|---|---|
+| 0x01000000 | ov 71-80 codec module code (seen by core B at address 0) |
+| 0x01020000 | ov 71-80 codec module data (first 0x90 bytes: clock block written by core A) |
 
 [AP30 section records.] Data windows follow the same rule: most main-window occupants put their data and bss at
 0x03023b48; the playback engine owns 0x030360e8-0x03048b50 (see [RAM use](#ram-use)).
@@ -178,20 +179,24 @@ overlay 35), and locating a section's code in flash (0x03065f60) [AP30].
 
 ## OS layer: main loop, tasks, windows, services
 
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    R(["reset"]) --> I["init (section 0 + overlay 1)"] --> L["main loop (never returns)"]
+    L --> T1["load the current task's overlay<br/>(task table → overlay number, flags 7)"]
+    T1 --> T2["call the task's init(arg)"]
+    T2 --> SS["system service<br/>battery, backlight auto-off, headphone jack, timers …"]
+    SS --> SL["service list<br/>background services (player, image loader, USB …)"]
+    SL --> WS["window stack<br/>service of every window, keys of the top window, paint"]
+    WS --> C{"task changed?"}
+    C -->|"no: repeat"| SS
+    C -->|"yes: a window requested (task number, argument)"| T1
 ```
-reset ─► init (section 0 + overlay 1) ─► main loop (never returns)
-            loop:
-              load the current task's overlay (task table → overlay number, flags 7)
-              call the task's init(arg)
-              repeat until the task changes:
-                 system service       battery, backlight auto-off, headphone jack, timers …
-                 service list         background services (player, image loader, USB …)
-                 window stack         service of every window, keys of the top window, paint
-              (a window requests a task change with (task number, argument))
 
-SysTick, every 10 ms ─► tick counter + software-timer list (key scan runs here, every tick)
-PendSV               ─► deferred audio work: refill the I2S output buffers
-```
+| Interrupt | Work |
+|---|---|
+| SysTick, every 10 ms | tick counter + software-timer list (key scan runs here, every tick) |
+| PendSV | deferred audio work: refill the I2S output buffers |
 
 [AP30.] Details:
 

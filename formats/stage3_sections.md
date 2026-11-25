@@ -25,21 +25,23 @@ rule, the layout of the blob, the overlay windows and the default-configuration 
 
 ## Header and records
 
-```
-stage3 offset
-0x0000  u32 base          0x03050000
-0x0004  u32 count         113 (V1.7.8)
-0x0008  count × section record (32 bytes each):
-          +0x00 u32 code_va    position of the code bytes in the blob (as base + offset)
-          +0x04 u32 code_pa    run address of the code
-          +0x08 u32 code_sz    code size in bytes
-          +0x0C u32 data_va    position of the initialised data in the blob
-          +0x10 u32 data_pa    run address of the data
-          +0x14 u32 data_sz    data size
-          +0x18 u32 bss_pa     run address of the zero-initialised area
-          +0x1C u32 bss_sz     bss size
-8 + 32 × count:  default-configuration block, 0x224 bytes (see below)
-```
+| Stage3 offset | Field | Content |
+|---|---|---|
+| 0x0000 | `u32 base` | 0x03050000 |
+| 0x0004 | `u32 count` | 113 (V1.7.8) |
+| 0x0008 | count × section record (32 bytes each) | see below |
+| 8 + 32 × count | default-configuration block, 0x224 bytes | see below |
+
+| Record offset | Field | Meaning |
+|---|---|---|
+| +0x00 | `u32 code_va` | position of the code bytes in the blob (as base + offset) |
+| +0x04 | `u32 code_pa` | run address of the code |
+| +0x08 | `u32 code_sz` | code size in bytes |
+| +0x0C | `u32 data_va` | position of the initialised data in the blob |
+| +0x10 | `u32 data_pa` | run address of the data |
+| +0x14 | `u32 data_sz` | data size |
+| +0x18 | `u32 bss_pa` | run address of the zero-initialised area |
+| +0x1C | `u32 bss_sz` | bss size |
 All [AP30]. In V1.7.8, 92 of the 113 records are non-empty [AP30]. Record numbers are the "section" or "overlay"
 numbers used everywhere in this collection (ov 1, ov 8, …).
 

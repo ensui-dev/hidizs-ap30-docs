@@ -51,30 +51,31 @@ LBA space. The loader's LBA 0 is physical sector 0x2000 (the FW1 header). The fu
 (physical sector numbers; the "op 0x04 address" column is what the loader's READ_SECTOR command uses, see
 [below](#the-read_sector-0x04-view)):
 
-```
-physical  op 0x04
-0x0000    —        ┌ 64 sectors, not reachable with READ_SECTOR; content unknown                 [?]
-0x0040    0x0000   ├ IDB copy 0 ───────────────────────────────────────────────────────────────┐
-                   │ +0x00  header       RC4   magic 0x0FF0AA55, stage table at +0x38          │
-                   │ +0x01  sector 1     plain "NANO" tag at +0x0a; system-zone size at +0x02  │
-                   │ +0x02  sector 2     RC4   "C262" (the chip ID the loader reports)         │
-                   │ +0x03  sector 3     device identity (serial / UID / Bluetooth + Wi-Fi MAC)│
-                   │ +0x04  stage A      RC4   4 sectors (2 KiB), SP 0x03002000, reset 0x0300010d
-                   │ +0x0c  stage B      RC4   4 sectors, byte-identical to stage A            │
-                   │ +0x14  stage C      RC4   36 sectors (18 KiB) = MAIN LOADER,              │
-                   │                           SP 0x03090000, reset 0x0300008d                  │
-                   │ +0x38  trailer      plain 00 00 0f 00 00 04 08 00 32 00 01 00  (meaning ?)│
-0x01f0    0x01b0   │ FAT16 boot sector ("MSDOS5.0", "NO NAME", hidden sectors = 496 = its own  │
-                   │ position) + two empty FATs at op 0x1c0 / 0x2b0: leftover of a factory      │
-                   │ format [?]                                                                │
-0x0400    0x03c0   │ 0xFF (erased)                                                             │
-0x0440    0x0400   ├ IDB copy 1 (identical)                                                    │
-0x0840    0x0800   ├ IDB copy 2 (identical)                                                    │
-0x0c40    0x0c00   ├ IDB copy 3 (identical)                                                    │
-0x1040    0x1000   ├ IDB copy 4 (identical)                                                    │
-0x107c    0x103c   │ 0xFF (erased) up to the end of the hidden area                            │
-0x2000    0x1fc0   └ FW1 header = loader LBA 0 ────────────────────────────────────────────────┘
-```
+| Physical sector | READ_SECTOR (op 0x04) | Content |
+|---|---|---|
+| 0x0000 | — | 64 sectors, not reachable with READ_SECTOR; content unknown [?] |
+| 0x0040 | 0x0000 | **IDB copy 0** (layout below) |
+| 0x01f0 | 0x01b0 | FAT16 boot sector ("MSDOS5.0", "NO NAME", hidden sectors = 496 = its own position) + two empty FATs at op 0x1c0 / 0x2b0: leftover of a factory format [?] |
+| 0x0400 | 0x03c0 | 0xFF (erased) |
+| 0x0440 | 0x0400 | IDB copy 1 (identical) |
+| 0x0840 | 0x0800 | IDB copy 2 (identical) |
+| 0x0c40 | 0x0c00 | IDB copy 3 (identical) |
+| 0x1040 | 0x1000 | IDB copy 4 (identical) |
+| 0x107c | 0x103c | 0xFF (erased) up to the end of the hidden area |
+| 0x2000 | 0x1fc0 | FW1 header = loader LBA 0 |
+
+IDB copy 0, by sector offset:
+
+| Offset | Part | Stored | Content |
+|---|---|---|---|
+| +0x00 | header | RC4 | magic 0x0FF0AA55, stage table at +0x38 |
+| +0x01 | sector 1 | plain | "NANO" tag at +0x0a; system-zone size at +0x02 |
+| +0x02 | sector 2 | RC4 | "C262" (the chip ID the loader reports) |
+| +0x03 | sector 3 | | device identity (serial / UID / Bluetooth + Wi-Fi MAC) |
+| +0x04 | stage A | RC4 | 4 sectors (2 KiB), SP 0x03002000, reset 0x0300010d |
+| +0x0c | stage B | RC4 | 4 sectors, byte-identical to stage A |
+| +0x14 | stage C | RC4 | 36 sectors (18 KiB) = MAIN LOADER, SP 0x03090000, reset 0x0300008d |
+| +0x38 | trailer | plain | 00 00 0f 00 00 04 08 00 32 00 01 00 (meaning ?) |
 All [AP30], from three identical dumps of op 0x04 addresses 0..0x1FFF.
 
 **The header's stage table** (+0x38 in the descrambled header sector): `{0x14, 0x24}` = stage C start sector and
@@ -106,24 +107,27 @@ are stored in clear [AP30]. After descrambling, the header starts `55 AA F0 0F` 
 Stage A and stage B are identical 2 KiB programs with a stack at 0x03002000; they run first, presumably early setup
 and the load of stage C [?]. Stage C is the main loader. Its flow, in words [AP30, stage C disassembly]:
 
-```
-power-on / reset
-   │  mask ROM: reads the IDB from the flash (five copies), runs stage A/B, then stage C
-   ▼
-stage C main (~0x030009e2)
-   1. POWERHOLD (GPIO2_6) := output, high      ── the loader keeps the player powered
-   2. clocks (PLL 48 MHz, APB /2), UART1A TX on GPIO2_16, 115200 8N1, banner
-   3. VTOR := 0x0304A000
-   4. m := PMU_SYS_REG3 & 0xFFFF               ── survives soft resets, cleared by power-on resets
-        m == 0x18BF ─► clear marker, clear NVIC, jump through the ROM vector at ROM 0x8C ─► MaskROM USB
-        m == 0x18AF ─► usb := 1, marker := 0x18EF        (firmware asked for loader mode)
-        m == 0x18EF ─► usb := 1, marker := 0             (one more loader-mode boot, then normal)
-   5. common init (0x030006c0)
-   6. button check (0x03000934): D-pad Right + VBUS ─► prints "FW upgrade mode is detected",
-                                                      marker := 0x18EF, usb := 1
-   7. usb == 0 ─► prints "MemBoot", boots the firmware (0x03000c14), never returns
-      usb == 1 ─► Rockusb loader mode (init 0x03003964), serves commands while VBUS is present
-                  VBUS lost ─► prints "power down", then spins forever with POWERHOLD still high
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    P(["power-on / reset"]) -->|"mask ROM: reads the IDB from the flash (five copies), runs stage A/B, then stage C"| C["stage C main (~0x030009e2)"]
+    C --> S1["1. POWERHOLD (GPIO2_6) := output, high<br/>(the loader keeps the player powered)"]
+    S1 --> S2["2. clocks (PLL 48 MHz, APB /2), UART1A TX on GPIO2_16, 115200 8N1, banner"]
+    S2 --> S3["3. VTOR := 0x0304A000"]
+    S3 --> S4{"4. m := PMU_SYS_REG3 & 0xFFFF<br/>(survives soft resets, cleared by power-on resets)"}
+    S4 -->|"m == 0x18BF"| MR["clear marker, clear NVIC, jump through the ROM vector at ROM 0x8C<br/>→ MaskROM USB"]
+    S4 -->|"m == 0x18AF<br/>(firmware asked for loader mode)"| U1["usb := 1, marker := 0x18EF"]
+    S4 -->|"m == 0x18EF<br/>(one more loader-mode boot, then normal)"| U2["usb := 1, marker := 0"]
+    S4 -->|"any other value"| S5
+    U1 --> S5
+    U2 --> S5
+    S5["5. common init (0x030006c0)"] --> S6{"6. button check (0x03000934):<br/>D-pad Right + VBUS?"}
+    S6 -->|"yes"| U3["prints 'FW upgrade mode is detected',<br/>marker := 0x18EF, usb := 1"]
+    S6 -->|"no"| S7{"7. usb?"}
+    U3 --> S7
+    S7 -->|"usb == 0"| MB["prints 'MemBoot', boots the firmware (0x03000c14), never returns"]
+    S7 -->|"usb == 1"| RU["Rockusb loader mode (init 0x03003964),<br/>serves commands while VBUS is present"]
+    RU -->|"VBUS lost"| PD["prints 'power down', then spins forever with POWERHOLD still high"]
 ```
 
 Strings the loader prints on its console: the banner, `BootDevType=`, `IDBAddr=`, "MemBoot", "FW upgrade mode is
@@ -185,14 +189,24 @@ mode, the burst was missing; unexplained [?]. Loader USB mode itself is high-spe
 
 The boot routine (0x03000c14) never returns [AP30]:
 
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    M{"marker == 0x18CF?<br/>(last boot came from FW2)"}
+    M -->|yes| P2{"FW2 present?"}
+    P2 -->|yes| T2["try FW2"]
+    P2 -->|no| E1
+    T2 --> E1["marker := 0x18EF, try FW1"]
+    E1 --> S1(["spin forever"])
+    M -->|no| D1["marker := 0x18DF, try FW1"]
+    D1 --> P3{"FW2 present?"}
+    P3 -->|yes| D2["marker := 0x18CF, try FW2"]
+    P3 -->|no| S2(["spin forever"])
+    D2 --> S2
 ```
-if marker == 0x18CF:                    last boot came from FW2
-    if FW2 present: try FW2
-    marker := 0x18EF; try FW1; spin forever
-marker := 0x18DF; try FW1
-if FW2 present: marker := 0x18CF; try FW2
-spin forever
-```
+
+A "try" that passes the loader's check boots that image and never comes back; the flow continues only when the check
+fails.
 
 * FW1 is at loader LBA 0 (physical 0x2000). FW2 is at an LBA derived from the IDB (0xF000 on the AP30, physical
   0x11000) [AP30].

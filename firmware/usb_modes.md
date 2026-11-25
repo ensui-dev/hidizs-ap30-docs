@@ -28,17 +28,16 @@ using the loader mode for recovery is on [guides/recovery.md](../guides/recovery
 
 ## Overview
 
-```
-                 USB-C
-                   │
-            ┌──────┴──────┐  analog DPDT switch ("7227" marking), select = GPIO0_14 [?]
-            │             │
-   GPIO0_14 = 1          GPIO0_14 = 0
-            │             │
-   RKNanoD USB OTG        Realtek ALC5686 USB-audio chip (own firmware)
-   ├─ charger only        └─ "USB audio" = DAC mode, 0bda:4a35, audio + HID
-   ├─ File Transfer 071b:3203 (two LUNs) + vendor commands
-   └─ (boot loader: Rockusb 2207:262d, recovery)
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    U["USB-C"] --> SW{"analog DPDT switch (“7227” marking)<br/>select = GPIO0_14 [?]"}
+    SW -->|"GPIO0_14 = 1"| RK["RKNanoD USB OTG"]
+    SW -->|"GPIO0_14 = 0"| RT["Realtek ALC5686 USB-audio chip<br/>(own firmware)"]
+    RK --> RK1["charger only"]
+    RK --> RK2["File Transfer 071b:3203 (two LUNs)<br/>+ vendor commands"]
+    RK --> RK3["(boot loader: Rockusb 2207:262d, recovery)"]
+    RT --> RT1["“USB audio” = DAC mode, 0bda:4a35, audio + HID"]
 ```
 
 | Mode | USB identity | Who serves it | Source |
@@ -97,13 +96,10 @@ the library dirty and return to the main menu [AP30].
 
 Inside File Transfer the SCSI dispatcher (overlay 12, 0x030837ee) accepts Rockchip vendor commands [AP30]:
 
-```
-CDB (10 bytes):  FF E0 c3 c2 c1 c0 p1 p0 00 00
-                 │  │  └── code ──┘ └param┘
-                 │  └ 0xE0 = Rockchip vendor command
-                 └ opcode 0xFF
-code  = CDB[2..5], big-endian      param = CDB[6..7], big-endian
-```
+| CDB byte | 0 | 1 | 2-5 | 6-7 | 8-9 |
+|---|---|---|---|---|---|
+| Value | `FF` | `E0` | `c3 c2 c1 c0` | `p1 p0` | `00 00` |
+| Meaning | opcode 0xFF | 0xE0 = Rockchip vendor command | code = CDB[2..5], big-endian | param = CDB[6..7], big-endian | |
 
 | code | param | Data | Effect | Tested on a device |
 |---|---|---|---|---|

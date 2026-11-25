@@ -46,23 +46,25 @@ neither command.
 
 ## The map
 
-```
-physical   loader LBA  size     content
-0x000000   —           32 KiB   unknown, unreadable over USB                                [?]
-0x000040   —           ~3 MiB   "boot area": IDB copies 0-4 at physical 0x40 + 0x400·i,
-                                each ~60 sectors (loader 4.16), rest erased; FAT16 leftover
-0x001800   —           512 KiB  "reserved area" the firmware can access raw (read as 0xFF)
-0x001C00   —           512 KiB  unknown (read as 0xFF)                                     [?]
-0x002000   0x00000     28 MiB   FW1: RKnanoFW image + header copy (0xE000 sectors written)
-0x010000   0x0E000     2 MiB    rest of the FW1 slot: leftover data (an older header)
-0x011000   0x0F000     28 MiB   FW2: same image (the stock updater writes both)
-0x01F000   0x1D000     2 MiB    rest of the FW2 slot
-           └── part 0 = "system zone", 60 MiB (0x1E000 sectors), size taken from the IDB ──┘
-0x020000   0x1E000     200 MiB  part 1: reserved partition (settings, favourites, bookmarks,
-                                media-library database)
-0x084000   0x82000     216 MiB  part 2: user volume = MBR + FAT32 at +64 sectors (USB LUN 0)
-0x0F0000   0xEE000     end      (983,040 sectors)
-```
+![The internal flash from physical sector 0 to the end: boot area, FW1 and FW2 slots in part 0, the reserved partition and the user volume, coloured by partition. Not to scale.](../images/diagrams/flash-layout.svg)
+
+*Not to scale; drawn from the table below (`python3 -I tools/diagrams/memmap.py formats/idb_and_flash_layout.md "The map" images/diagrams/flash-layout.svg --addr Physical --label Content --size Size --note "Loader LBA" --group Partition`).*
+
+| Physical | Loader LBA | Size | Content | Partition |
+|---|---|---|---|---|
+| 0x000000 | — | 32 KiB | unknown, unreadable over USB [?] | hidden |
+| 0x000040 | — | ~3 MiB | "boot area": IDB copies 0-4 at physical 0x40 + 0x400·i, each ~60 sectors (loader 4.16), rest erased; FAT16 leftover | hidden |
+| 0x001800 | — | 512 KiB | "reserved area" the firmware can access raw (read as 0xFF) | hidden |
+| 0x001C00 | — | 512 KiB | unknown (read as 0xFF) [?] | hidden |
+| 0x002000 | 0x00000 | 28 MiB | FW1: RKnanoFW image + header copy (0xE000 sectors written) | part 0 |
+| 0x010000 | 0x0E000 | 2 MiB | rest of the FW1 slot: leftover data (an older header) | part 0 |
+| 0x011000 | 0x0F000 | 28 MiB | FW2: same image (the stock updater writes both) | part 0 |
+| 0x01F000 | 0x1D000 | 2 MiB | rest of the FW2 slot | part 0 |
+| 0x020000 | 0x1E000 | 200 MiB | part 1: reserved partition (settings, favourites, bookmarks, media-library database) | part 1 |
+| 0x084000 | 0x82000 | 216 MiB | part 2: user volume = MBR + FAT32 at +64 sectors (USB LUN 0) | part 2 |
+| 0x0F0000 | 0xEE000 | | end (983,040 sectors) | |
+
+Part 0 = "system zone", 60 MiB (0x1E000 sectors); its size is taken from the IDB.
 All [AP30, measured from a full read of loader LBA 0..0xEDFFF plus the op 0x04 view, and computed from the firmware's
 partition code; the two agree exactly].
 

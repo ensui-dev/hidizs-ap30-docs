@@ -33,12 +33,11 @@ All hashes and header fields [AP30, read from the files]. The factory firmware f
 retail unit (both slots) is byte-identical to the public `HIFIYF05.IMG` [AP30, device read-out]. No build older than
 `HIFIYF26.IMG` and none newer than V1.7.8 is known (2026-11).
 
-```
-2026-07-23        2026-08-19              2026-10-19
-HIFIYF26 ───────► HIFIYF05 ─────────────► HIFIYF18 (V1.7.8)
-0.0.0             5.0.0 (factory)         8.0.0
-1 game            11 games                29 games (+4 hidden)
-277 strings       289 strings             307 strings
+```mermaid
+timeline
+    2026-07-23 : HIFIYF26 : 0.0.0 : 1 game : 277 strings
+    2026-08-19 : HIFIYF05 : 5.0.0 (factory) : 11 games : 289 strings
+    2026-10-19 : HIFIYF18 (V1.7.8) : 8.0.0 : 29 games (+4 hidden) : 307 strings
 ```
 
 ## Where they come from

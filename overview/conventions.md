@@ -85,14 +85,16 @@ Many Rockchip control registers (GRF, CRU clock gates / soft resets / selectors,
 mask**: in a 32-bit write, bits [31:16] say which of bits [15:0] are changed; bits whose mask bit is 0 keep their old
 value. The TRM marks the mask half as write-only ("WO") [TRM].
 
+```mermaid
+%%{init: {"packet": {"bitsPerRow": 16}}}%%
+packet
+    title A write to a write-mask register
+    0-15: "new value"
+    16-31: "write-enable mask"
 ```
- 31                 16 15                  0
-┌─────────────────────┬─────────────────────┐
-│ write-enable mask   │ new value           │   write
-└─────────────────────┴─────────────────────┘
- bit (16+n) = 1  →  bit n takes the new value
- bit (16+n) = 0  →  bit n is left alone
-```
+
+* bit (16+n) = 1 → bit n takes the new value
+* bit (16+n) = 0 → bit n is left alone
 
 Examples:
 
@@ -128,19 +130,12 @@ I2C addresses are **8-bit write addresses** unless marked "7-bit": the DAC is **
 
 The same bytes have different addresses depending on who looks. Pages always say which space an address is in.
 
-```
-                        ┌────────────────────────────────────────────────────────────┐
- image file offset      │ RKnanoFW file: header 0x000-0x1FF, blobs, header copy, CRC │
-                        └───────────────┬────────────────────────────────────────────┘
-                                        │ stage-3 blob: offset in blob = VA − 0x03050000
-                                        ▼
- core A address (VA)    0x0300_0000 SYSRAM (firmware data, overlay windows, section 0 code at 0x03050000)
-                        0x0100_0000 HIGHRAM0 (core-B code)   0x0102_0000 HIGHRAM1
-                        0x4000_0000 / 0x5000_0000 / 0x6000_0000 peripherals, 0xE000_E000 SCS
-                                        │ same RAM, other core
-                                        ▼
- core B address         0x0000_0000 = HIGHRAM0 (its decoder module and vector table)
-                        0x0102_0000 = HIGHRAM1 (shared buffers, info structs)
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    F["<b>image file offset</b><br/>RKnanoFW file: header 0x000-0x1FF, blobs, header copy, CRC"]
+    F -->|"stage-3 blob: offset in blob = VA − 0x03050000"| A["<b>core A address (VA)</b><br/>0x0300_0000 SYSRAM (firmware data, overlay windows, section 0 code at 0x03050000)<br/>0x0100_0000 HIGHRAM0 (core-B code) · 0x0102_0000 HIGHRAM1<br/>0x4000_0000 / 0x5000_0000 / 0x6000_0000 peripherals, 0xE000_E000 SCS"]
+    A -->|"same RAM, other core"| B["<b>core B address</b><br/>0x0000_0000 = HIGHRAM0 (its decoder module and vector table)<br/>0x0102_0000 = HIGHRAM1 (shared buffers, info structs)"]
 ```
 
 | Space | Used for | Notes |

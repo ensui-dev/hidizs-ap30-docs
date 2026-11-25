@@ -24,23 +24,15 @@ rules and a worked example with the numbers of V1.7.8.
 
 ## Overall layout
 
-```
-offset
-0          ┌──────────────────────────────┐
-           │ header (0x200)               │
-0x200      ├──────────────────────────────┤
-           │ blobs, back to back,         │  stage[3] (code), font[0], font[1], gbk[0],
-           │ no alignment                 │  strtbl[0], imageres[0]
-end        ├──────────────────────────────┤
-           │ zeros up to an 8 KiB boundary│
-size       ├──────────────────────────────┤  size = u32 at header +0x1F4
-           │ copy of the header (0x200)   │  must equal the header byte for byte
-size+0x200 ├──────────────────────────────┤
-           │ zeros                        │
-L          ├──────────────────────────────┤  L = (size + 0x104000) & ~0xFFFFF
-           │ RKCRC32, u32 little-endian   │
-L+4        └──────────────────────────────┘  = file length
-```
+| Offset | Content | Note |
+|---|---|---|
+| 0 | header (0x200) | |
+| 0x200 | blobs, back to back, no alignment | stage[3] (code), font[0], font[1], gbk[0], strtbl[0], imageres[0] |
+| end | zeros up to an 8 KiB boundary | |
+| size | copy of the header (0x200) | size = u32 at header +0x1F4; must equal the header byte for byte |
+| size+0x200 | zeros | |
+| L | RKCRC32, u32 little-endian | L = (size + 0x104000) & ~0xFFFFF |
+| L+4 | end of file | L+4 = file length |
 All [AP30].
 
 ## Header (0x200 bytes)

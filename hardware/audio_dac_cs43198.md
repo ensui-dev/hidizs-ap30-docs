@@ -59,21 +59,42 @@ More photos: [photos.md](photos.md).
 
 ## Wiring
 
-```
- RKNanoD                                           CS43198
- ┌──────────────────────┐   I2S1A                  ┌────────────────────────┐
- │ GPIO1_0 I2S1A_CLK ───┼── MCLK out ─── ? ───────►│ (MCLK pin wired? [?])  │
- │ GPIO1_2 I2S1A_SCLK ──┼── SCLK (64 fs) ─────────►│ ASP SCLK   slave       │
- │ GPIO1_1 I2S1A_LRCK ──┼── LRCK (fs) ───────────►│ ASP LRCK               │      ┌──────────┐
- │ GPIO1_3 I2S1A_SDO ───┼── SDATA 24-in-32 ──────►│ ASP SDIN               │      │ 24.576   │
- │                      │                          │ XTI / XTO ◄────────────┼──────┤ MHz xtal │
- │ GPIO2_13 I2C1C_SCL ──┼── I2C 400 kHz ─────────►│ SCL   addr 0x66        │      └──────────┘
- │ GPIO2_12 I2C1C_SDA ◄─┼────────────────────────►│ SDA                    │
- │                      │                          │ RESET ◄── ? (no GPIO   │
- │ GPIO2_1 ─────────────┼── mute (1 = muted) ───? │  pulse seen) [?]       │
- │ GPIO2_2 / GPIO2_14 / │                          │                        │
- │ GPIO1_4 ─────────────┼── audio power / enable? │ HPOUTA/B ──────────────┼──► RT6863 amp ──► jacks
- └──────────────────────┘                          └────────────────────────┘
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    subgraph SOC["RKNanoD"]
+        direction TB
+        a1["GPIO1_0 I2S1A_CLK"]
+        a2["GPIO1_2 I2S1A_SCLK"]
+        a3["GPIO1_1 I2S1A_LRCK"]
+        a4["GPIO1_3 I2S1A_SDO"]
+        a5["GPIO2_13 I2C1C_SCL"]
+        a6["GPIO2_12 I2C1C_SDA"]
+        a7["GPIO2_1"]
+        a8["GPIO2_2 / GPIO2_14 / GPIO1_4"]
+    end
+    subgraph DAC["CS43198"]
+        direction TB
+        b1["MCLK pin wired? [?]"]
+        b2["ASP SCLK (slave)"]
+        b3["ASP LRCK"]
+        b4["ASP SDIN"]
+        b5["SCL, addr 0x66"]
+        b6["SDA"]
+        b8["XTI / XTO"]
+        b7["RESET ← ? (no GPIO pulse seen) [?]"]
+        b9["HPOUTA/B"]
+    end
+    a1 -.->|"MCLK out → ?"| b1
+    a2 -->|"SCLK (64 fs)"| b2
+    a3 -->|"LRCK (fs)"| b3
+    a4 -->|"SDATA 24-in-32"| b4
+    a5 -->|"I2C 400 kHz"| b5
+    a6 <--> b6
+    a7 -.->|"mute (1 = muted)"| Q1["? (destination not known)"]
+    a8 -.->|"audio power / enable?"| Q2["? (destination not known)"]
+    X["24.576 MHz xtal"] --> b8
+    b9 --> AMP["RT6863 amp"] --> J["jacks"]
 ```
 
 - **I2C1C is also UART0A and JTAG1** (core-B debug). While the DAC is in use neither is available [AP30].
@@ -99,12 +120,19 @@ More photos: [photos.md](photos.md).
 
 ## Clocking
 
-```
- SoC side (clock master)                                      DAC side
- 24 MHz xtal ─► ACODEC PLL ─► CRU ÷5 ─► I2S1 MCLK ─► I2S1 divider ─► SCLK = 64 fs, LRCK = fs ─►  ASP (slave)
-               (per-rate table, family 8 k / 11.025 k / 12 k)                                      │
-                                                                                                    ▼
-                                                       24.576 MHz crystal ─► XTI/XTO ─► internal MCLK ─► DAC core
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    subgraph SOCS["SoC side (clock master)"]
+        direction LR
+        X["24 MHz xtal"] --> PLL["ACODEC PLL<br/>(per-rate table,<br/>family 8 k / 11.025 k / 12 k)"] --> D5["CRU ÷5"] --> MCLK["I2S1 MCLK"] --> DIV["I2S1 divider"]
+    end
+    subgraph DACS["DAC side"]
+        direction LR
+        ASP["ASP (slave)"] --> CORE["DAC core"]
+        X2["24.576 MHz crystal"] --> XT["XTI/XTO"] --> IM["internal MCLK"] --> CORE
+    end
+    DIV -->|"SCLK = 64 fs, LRCK = fs"| ASP
 ```
 
 - **SoC:** the audio clock comes from the RKNanoD's internal audio-codec (ACODEC) PLL, not from the system PLL,

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="480" viewBox="0 0 760 480" font-family="DejaVu Sans, Arial, sans-serif">
+  <!-- SPDX-License-Identifier: CC-BY-4.0 -->
+  <!-- Drawn to scale: 1.5 px per controller column / row. Source for hardware/display.md "Geometry". -->
+  <rect width="760" height="480" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="380" y="30" font-size="14" font-weight="bold" text-anchor="middle" fill="#24292f">controller RAM in the MADCTL 0xA0 orientation: 320 columns × 240 rows</text>
+  <g transform="translate(140,60)">
+    <rect x="0" y="0" width="480" height="360" fill="#d6e6fb" stroke="#3b6fb6" stroke-width="2"/>
+    <rect x="0" y="0" width="36" height="360" fill="#eeeeee" stroke="#9a9a9a" stroke-dasharray="5 3"/>
+    <text transform="translate(22,180) rotate(-90)" font-size="12" text-anchor="middle" fill="#57606a">not visible (24 columns)</text>
+    <text x="258" y="170" font-size="16" font-weight="bold" text-anchor="middle" fill="#24292f">visible glass: 296 × 240</text>
+    <text x="258" y="196" font-size="13" text-anchor="middle" fill="#24292f">logical x = column − 24, y = row</text>
+    <!-- column labels -->
+    <text x="0" y="-8" font-family="DejaVu Sans Mono, monospace" font-size="11" text-anchor="start" fill="#24292f">col 0</text>
+    <text x="36" y="378" font-family="DejaVu Sans Mono, monospace" font-size="11" text-anchor="middle" fill="#24292f">col 24</text>
+    <line x1="36" y1="360" x2="36" y2="366" stroke="#24292f"/>
+    <text x="480" y="-8" font-family="DejaVu Sans Mono, monospace" font-size="11" text-anchor="end" fill="#24292f">col 319</text>
+    <!-- row labels -->
+    <text x="490" y="12" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#24292f">row 0</text>
+    <text x="490" y="358" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#24292f">row 239</text>
+  </g>
+  <text x="380" y="462" font-size="11" text-anchor="middle" fill="#57606a">to scale (320 × 240 controller columns × rows)</text>
+</svg>

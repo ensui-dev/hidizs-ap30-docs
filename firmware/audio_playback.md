@@ -35,25 +35,25 @@ DSD files are converted to 44.1 kHz PCM on core B. All facts are from V1.7.8 [AP
 
 ## The pipeline
 
+```mermaid
+sequenceDiagram
+    participant B as core B (codec module 71-80)
+    participant A as core A (front-end)
+    Note over B: decode 1 block → packed 16/24-bit PCM in HIGHRAM1
+    B->>A: "decoded" (B→A ch1, 5)
+    Note over A: front-end "get buffer"
+    A->>B: "decode" (A→B ch1, 4): send DECODE, the next block starts
+    Note over A: DMA mem-to-mem: core-B RAM → one of two 36 KiB<br/>ping-pong buffers (0x030361bc / 0x0303f1bc)
+    B->>A: needs file data: read / seek (B→A ch2)
+    Note over A: mailbox IRQ 11: file system reads<br/>straight into core-B RAM
+    A-->>B: core A writes straight into core-B RAM
 ```
- core B (codec module 71-80)              core A                                        hardware
- ┌─────────────────────────┐  B→A ch1 5   ┌────────────────────────────────────┐
- │ decode 1 block → packed │─"decoded"───►│ front-end "get buffer":             │
- │ 16/24-bit PCM in        │              │  send DECODE (next block starts)    │
- │ HIGHRAM1                │◄─A→B ch1 4───│  DMA mem-to-mem: core-B RAM → one   │
- │                         │  "decode"    │  of two 36 KiB ping-pong buffers    │
- │ needs file data:        │              │  (0x030361bc / 0x0303f1bc)          │
- │ B→A ch2 read/seek ──────┼─────────────►│ mailbox IRQ 11: file system reads   │
- │ (core A writes straight │◄─────────────│  straight into core-B RAM           │
- │  into core-B RAM)       │              └───────────────┬────────────────────┘
- └─────────────────────────┘                              ▼
-                                          PendSV audio service (deferred interrupt)
-                                           widen to 24-in-32 · EQ (optional) · fade
-                                           left-justify (<< 8)
-                                                          │
-                                          DMAC1 channel 5 ┴─► I2S1 TX FIFO ─► CS43198 ─► RT6863 ─► jacks
-                                          (one transfer per block; its done-IRQ re-arms with the next block
-                                           and requests PendSV)
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    PS["PendSV audio service (deferred interrupt)<br/>widen to 24-in-32 · EQ (optional) · fade<br/>left-justify (shift left by 8)"] --> DMA["DMAC1 channel 5"] --> FIFO["I2S1 TX FIFO"] --> DAC["CS43198"] --> AMP["RT6863"] --> J["jacks"]
+    DMA -->|"one transfer per block; its done-IRQ<br/>re-arms with the next block and requests PendSV"| PS
 ```
 
 [AP30, analysis of firmware V1.7.8.] The mailbox protocol is in [core_b_codecs.md](core_b_codecs.md); the hardware

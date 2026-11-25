@@ -79,16 +79,7 @@ More photos: [photos.md](photos.md).
 
 ## Geometry: 296×240 on a 240×320 controller
 
-```
-   controller RAM in the MADCTL 0xA0 orientation: 320 columns × 240 rows
-   col 0          col 24                                               col 319
-   ┌───────────────┬───────────────────────────────────────────────────┐ row 0
-   │  not visible  │                                                   │
-   │  (24 columns) │          visible glass: 296 × 240                 │
-   │               │          logical x = column − 24, y = row          │
-   │               │                                                   │
-   └───────────────┴───────────────────────────────────────────────────┘ row 239
-```
+![Controller RAM in the MADCTL 0xA0 orientation, 320 columns by 240 rows, drawn to scale: columns 0 to 23 are not visible, columns 24 to 319 are the visible 296 by 240 glass, logical x = column minus 24, y = row.](../images/diagrams/display-geometry.svg)
 
 - The init sets **MADCTL = 0xA0** (row/column exchange + row-address order flip, RGB order) and **COLMOD = 0x05**
   (16 bpp) [AP30].

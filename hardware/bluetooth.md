@@ -148,12 +148,18 @@ inference, not traced]. The tap is probably permanent; whether the wired outputs
 been checked. The player volume (0-100) sets the level the chip samples; the Bluetooth screen's volume keys change
 the same setting [AP30]. The analog hand-off also caps quality at the JieLi's ADC [?].
 
-```
-  RKNanoD ──I2S──► CS43198 ──analog──► RT6863 ──► jacks
-     │                  │
-     │ UART1A           └──analog (tap point ?)──► JieLi ADC ──► SBC encoder ──► 2.4 GHz ──► headphones
-     └── commands / status ─────────────────────► JieLi                    remote keys ──┐
-     ◄─────────────────────────────────────────── (CP / CA / CB …) ◄──────────────────────┘
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    RK["RKNanoD"] -->|I2S| DAC["CS43198"] -->|analog| AMP["RT6863"] --> J["jacks"]
+    subgraph JL["JieLi"]
+        ADC["ADC"] --> SBC["SBC encoder"]
+    end
+    DAC -.->|"analog (tap point ?)"| ADC
+    SBC --> RF["2.4 GHz"] --> HP["headphones"]
+    RK -->|"UART1A: commands / status"| JL
+    HP -->|"remote keys"| JL
+    JL -->|"(CP / CA / CB …)"| RK
 ```
 
 ## Codec and role limits

@@ -29,10 +29,13 @@ loop keeps running. The board-level side (power tree, charger, battery, 8 s rese
 
 ## Power-on
 
-```
-Power key (PLAYON) ─┐
-POWERHOLD (GPIO2_6) ─┼─ diode-OR ─► regulators on ─► MaskROM ─► boot loader (IDB) ─► firmware
-USB VBUS ───────────┘
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    PK["Power key (PLAYON)"] --> OR(("diode-OR"))
+    PH["POWERHOLD (GPIO2_6)"] --> OR
+    VB["USB VBUS"] --> OR
+    OR --> REG["regulators on"] --> MR["MaskROM"] --> BL["boot loader (IDB)"] --> FW["firmware"]
 ```
 
 [AP30 unless tagged; the diode-OR is from Rockchip's reference design and matches the AP30's behaviour, [?] for the
@@ -85,14 +88,14 @@ in the external ~8 s reset, without a goodbye screen.
 
 ### Clean-shutdown marker and the library rebuild [AP30]
 
-```
-power-off / reboot path ── save settings, +0x2e9 = 0x55aa ─────────────┐
-                                                                        ▼
-next boot ── load settings ── +0x2e9 == 0x55aa ? ── no ──► library dirty (+0x42 = 1)
-                                   │                                     │
-                                   └── then +0x2e9 = 0, save at once      ▼
-                                                              "Updating Library…" rebuild
-                                                              (ends with a save, marker cleared)
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    OFF["power-off / reboot path<br/>save settings, +0x2e9 = 0x55aa"] -.->|"marker saved"| NB
+    NB["next boot: load settings"] --> Q{"+0x2e9 == 0x55aa?"}
+    Q -->|no| D["library dirty (+0x42 = 1)"]
+    Q --> CL["then +0x2e9 = 0, save at once"]
+    D --> RB["#quot;Updating Library…#quot; rebuild<br/>(ends with a save, marker cleared)"]
 ```
 
 * Any stop that skips the power-off path (the 8 s hardware reset, a battery pull, a crash plus watchdog reset)

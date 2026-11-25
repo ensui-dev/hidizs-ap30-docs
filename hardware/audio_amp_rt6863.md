@@ -65,12 +65,13 @@ More photos: [photos.md](photos.md).
 
 ## Signal path
 
-```
-  CS43198 ──HPOUT A/B (differential)──► RT6863 ──┬──► 4.4 mm balanced jack   (larger barrel? [?])
-  (2 Vrms FS                                      │
-   at high gain)                                  └──► 3.5 mm SE jack          (smaller gold barrel? [?])
-                    │
-                    └──► JieLi Bluetooth chip analog input [?] (see Bluetooth below)
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    DAC["CS43198<br/>(2 Vrms FS at high gain)"] -->|"HPOUT A/B (differential)"| AMP["RT6863"]
+    AMP --> J44["4.4 mm balanced jack<br/>(larger barrel? [?])"]
+    AMP --> J35["3.5 mm SE jack<br/>(smaller gold barrel? [?])"]
+    DAC -.-> BT["JieLi Bluetooth chip analog input [?]<br/>(see Bluetooth below)"]
 ```
 
 The diagram is a model: which outputs share which amplifier channels, and where the Bluetooth chip taps the signal,

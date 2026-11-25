@@ -55,18 +55,18 @@ More photos: [photos.md](photos.md).
 
 ## Power path
 
-```
-                ┌──────────── VBUS (USB-C 5 V) ─────────────┐
-                │                                           ▼
-  Power key ──► PLAYON (GPIO2_5) ──►─┐                  charger IC [?] ──► battery 1200 mAh (+ protection PCB)
-                                     │ diode-OR                ▲   │            │
-  SoC ────────► POWERHOLD (GPIO2_6) ─┼──► regulator enable     │   └ "full" ──► GPIO2_3
-                                     │   (discrete regulators) │     NTC? ◄──── battery NTC wire [?]
-  VBUS ──────────────────────────────┘           │             └── control? ◄── GPIO1_0 [?]
-                                                  ▼
-                                 SoC, storage, DAC, amp, panel, BT, Realtek (rails not traced)
-
-  Power key ──► external long-press timer [part ?] ──► ~8 s: power-on-class reset, repeating
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    PK["Power key"] --> PO["PLAYON (GPIO2_5)"] --> OR(("diode-OR"))
+    SOC["SoC"] --> PH["POWERHOLD (GPIO2_6)"] --> OR
+    VB["VBUS (USB-C 5 V)"] --> OR
+    VB --> CHG["charger IC [?]"] --> BAT["battery 1200 mAh<br/>(+ protection PCB)"]
+    CHG -->|"“full”"| G23["GPIO2_3"]
+    NTC["battery NTC wire [?]"] -.->|"NTC?"| CHG
+    G10["GPIO1_0 [?]"] -.->|"control?"| CHG
+    OR --> REG["regulator enable<br/>(discrete regulators)"] --> LOADS["SoC, storage, DAC, amp, panel, BT, Realtek<br/>(rails not traced)"]
+    PK --> LP["external long-press timer [part ?]"] -->|"~8 s"| RST["power-on-class reset, repeating"]
 ```
 
 Power domains inside the SoC [TRM ch. 5]: the **PMU domain** (always on while the chip has power) holds the PMU,

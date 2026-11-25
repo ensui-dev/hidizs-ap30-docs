@@ -19,15 +19,19 @@ little-endian unless a page says otherwise.
 
 ## The image at a glance
 
+`HIFIYF18.IMG` (29,360,132 bytes), not to scale:
+
+```mermaid
+block-beta
+    columns 11
+    a["header<br/>0x200"] b["stage3<br/>code"] c["font0<br/>12 px"] d["font1<br/>16 px"] e["gbk0"] f["strtbl"] g["imageres"] h["pad<br/>→ 8K"] i["header<br/>copy"] j["pad<br/>→ 1M"] k["CRC32<br/>4 B"]
 ```
-HIFIYF18.IMG (29,360,132 bytes)
-┌──────────┬─────────┬───────┬───────┬──────┬────────┬──────────┬──────┬────────┬──────┬───────┐
-│ header   │ stage3  │ font0 │ font1 │ gbk0 │ strtbl │ imageres │ pad  │ header │ pad  │ CRC32 │
-│ 0x200    │ code    │ 12 px │ 16 px │      │        │          │ →8K  │ copy   │ →1M  │ 4 B   │
-└──────────┴─────────┴───────┴───────┴──────┴────────┴──────────┴──────┴────────┴──────┴───────┘
- 0x0000000                                                         0x1b90000          0x1c00000
-                                                                   = header.size      = written length
-```
+
+| Offset | What starts there |
+|---|---|
+| 0x0000000 | header |
+| 0x1b90000 = header.size | header copy |
+| 0x1c00000 = written length | CRC32 |
 
 ## Key facts
 

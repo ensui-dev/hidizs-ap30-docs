@@ -121,18 +121,18 @@ the wheel phases are external or inside the encoder, since the SoC pulls are dis
 
 ## Pins by subsystem (quick view)
 
-```
- Power        GPIO2_5 PLAYON (key in)   GPIO2_6 POWERHOLD (out)   VBUS (GRF)   GPIO2_3 charge full   GPIO1_0 charge ctl? 
- Display      GPIO0_15..25 VOP i8080    GPIO2_15 reset            GPIO2_4 PWM0 backlight
- Audio        GPIO1_0..3 I2S1A          GPIO2_12/13 I2C1C (DAC)   GPIO2_1 mute  GPIO2_2 / GPIO2_14 / GPIO1_4 / GPIO0_12 [roles ?]
- Jacks        GPIO2_8 + GPIO0_13 headphone detect
- Input        SARADC ch1 ladder         GPIO2_0 / GPIO2_9 wheel
- Storage      EMMC GPIO0_0..10 + GPIO1_11   SDMMC GPIO1_5..10   GPIO0_11 card detect
- USB          GPIO0_14 switch select    D+/D- via "7227" [?]
- Bluetooth    GPIO2_7 power             GPIO2_16/17 UART1A
- RTC          GPIO2_10/11 I2C0A
- Battery      SARADC ch0
-```
+| Subsystem | Pins |
+|---|---|
+| Power | GPIO2_5 PLAYON (key in) · GPIO2_6 POWERHOLD (out) · VBUS (GRF) · GPIO2_3 charge full · GPIO1_0 charge ctl? |
+| Display | GPIO0_15..25 VOP i8080 · GPIO2_15 reset · GPIO2_4 PWM0 backlight |
+| Audio | GPIO1_0..3 I2S1A · GPIO2_12/13 I2C1C (DAC) · GPIO2_1 mute · GPIO2_2 / GPIO2_14 / GPIO1_4 / GPIO0_12 [roles ?] |
+| Jacks | GPIO2_8 + GPIO0_13 headphone detect |
+| Input | SARADC ch1 ladder · GPIO2_0 / GPIO2_9 wheel |
+| Storage | EMMC GPIO0_0..10 + GPIO1_11 · SDMMC GPIO1_5..10 · GPIO0_11 card detect |
+| USB | GPIO0_14 switch select · D+/D- via "7227" [?] |
+| Bluetooth | GPIO2_7 power · GPIO2_16/17 UART1A |
+| RTC | GPIO2_10/11 I2C0A |
+| Battery | SARADC ch0 |
 
 ## Debug access: JTAG, UART, shared pins
 
@@ -153,34 +153,22 @@ The stock firmware prints nothing in normal operation; details in
 No PMIC is fitted [AP30]. The structure below combines the reference-board pattern [WEB] EVK, the firmware's
 behaviour [AP30] and the parts seen on the board; the identities of the regulators are guesses.
 
-```
-  USB-C VBUS (5 V) ─┬───────────────────────────────► charger IC [not identified; candidates: DP1 165 + inductor]
-   "5V" test pad    │                                   │  "full" status ──► GPIO2_3 (high = full)
-                    │                                   │  control? ◄──────── GPIO1_0 [?]
-                    │                                   │  NTC input? ◄────── battery NTC wire [?]
-                    │                                   ▼
-                    │                          ┌──────────────────────┐
-                    │                          │ 1200 mAh Li-po        │ 3.8 V nominal, 4.56 Wh, cell "923033"
-                    │                          │ + protection PCB      │ wires to pads BAT+ (red), BAT- (black),
-                    │                          └──────────┬───────────┘  NTC (white)
-                    │                                     │
-                    │                       battery path: "AFCP" SOT-23 (AO3415-type P-MOSFET [?]),
-                    │                       "SL" SOD-123 Schottky diodes [?]
-                    │                                     │
-                    ▼                                     ▼
-        ┌──────────────────────────────────────────────────────────────┐
-        │ system regulators (discrete): "06T2" SOT-23-6 + inductor     │
-        │ (buck [?]), "D00HAV" SOT-23-5 ×2 (LDO [?]), "S2ZQ" SOT-23-5,  │
-        │ "705628" 8-lead [?]                                            │
-        │ enable = PLAYON  OR  POWERHOLD  OR  VBUS   (diode-OR)          │
-        └───────┬──────────────────┬───────────────────┬────────────────┘
-                │                  │                   │
-          SoC rails, storage,   CS43198 (VA/VP; its own Class H     panel, backlight,
-          RTC? (supply when     VP_LDO at 3.0 V with HV_EN = 1)     RT6863, JieLi,
-          off not traced)       [DS + AP30 register value]           ALC5686 [?]
-
-  Power key ──► PLAYON (GPIO2_5) ──► also into the diode-OR, and into the external long-press timer
-                                     (~8 s → power-on-class reset, repeats ~10.5 s while held) [AP30 measured]
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    VB["USB-C VBUS (5 V)<br/>“5V” test pad"] --> CHG["charger IC<br/>[not identified; candidates: DP1 165 + inductor]"]
+    CHG -.->|"“full” status"| G23["GPIO2_3 (high = full)"]
+    G10["GPIO1_0 [?]"] -.->|"control?"| CHG
+    NTC["battery NTC wire [?]"] -.->|"NTC input?"| CHG
+    CHG --> BAT["1200 mAh Li-po + protection PCB<br/>3.8 V nominal, 4.56 Wh, cell “923033”<br/>wires to pads BAT+ (red), BAT- (black), NTC (white)"]
+    BAT -->|"battery path: “AFCP” SOT-23 (AO3415-type P-MOSFET [?]),<br/>“SL” SOD-123 Schottky diodes [?]"| REG
+    VB --> REG["<b>system regulators (discrete)</b><br/>“06T2” SOT-23-6 + inductor (buck [?]), “D00HAV” SOT-23-5 ×2 (LDO [?]),<br/>“S2ZQ” SOT-23-5, “705628” 8-lead [?]<br/>enable = PLAYON OR POWERHOLD OR VBUS (diode-OR)"]
+    REG --> L1["SoC rails, storage, RTC?<br/>(supply when off not traced)"]
+    REG --> L2["CS43198 (VA/VP; its own Class H<br/>VP_LDO at 3.0 V with HV_EN = 1)<br/>[DS + AP30 register value]"]
+    REG --> L3["panel, backlight, RT6863,<br/>JieLi, ALC5686 [?]"]
+    PK["Power key"] --> PO["PLAYON (GPIO2_5)"]
+    PO -->|"also into the diode-OR"| REG
+    PO --> LP["external long-press timer<br/>(~8 s → power-on-class reset, repeats ~10.5 s while held)<br/>[AP30 measured]"]
 ```
 
 Facts:

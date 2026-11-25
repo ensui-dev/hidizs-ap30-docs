@@ -26,51 +26,85 @@ Tags: **[AP30]** confirmed in the AP30 firmware (V1.7.8) or on the device (board
 ## Block diagram
 
 Signal names are SoC pin names (GPIOx_n = bank x, pin n; ball numbers in [board_ap30.md](board_ap30.md)).
-Dashed boxes are roles that are inferred, not traced on the board.
+One diagram per area, all centred on the SoC. Dashed lines are connections that are inferred, not traced on the
+board.
 
-```
-                         USB-C receptacle (16-pin)
-                          │ VBUS            │ D+ / D-
-         ┌────────────────┘                 │
-         │                        ┌─────────┴──────────┐  select = GPIO0_14 [AP30, role ?]
-         │                        │ "7227" DPDT analog │  1 = RKNanoD (default, File Transfer)
-         │                        │ USB switch [?]     │  0 = Realtek (USB DAC mode)
-         │                        └───┬───────────┬────┘
-         │                            │           │
-         ▼                            ▼           ▼
- ┌───────────────┐   VBUS sense ┌──────────────────────────────────────────┐   USB D+/D-  ┌──────────────────┐
- │ charger IC    │ ──(GRF bit)─►│            Rockchip RKNanoD-G            │              │ Realtek ALC5686  │
- │ (not identi-  │   "full" ───►│ GPIO2_3     LFBGA121, 2× Cortex-M3      │              │ USB audio chip   │
- │  fied) + NTC  │   GPIO1_0 ◄──│ (charge ctl?)  24 MHz crystal            │              │ 0bda:4a35, own   │
- └──────┬────────┘              │                                          │              │ 24 MHz crystal   │
-        │                       │  PLAYON  GPIO2_5 ◄── Power key (wheel    │  GPIO0_12 ──►│ enable? [?]      │
- ┌──────┴────────┐  enable =    │                      push switch [?])    │              └────────┬─────────┘
- │ 1200 mAh Li-po│  PLAYON OR   │  POWERHOLD GPIO2_6 ──► regulator enable  │                       │ analog or I2S
- │ + protection  │  POWERHOLD   │                                          │                       │ path to the
- │ PCB, BAT+/-,  │  OR VBUS     │  SARADC ch0 ◄── battery (2:1 divider)    │                       │ output [?]
- │ NTC pads      │  [WEB EVK    │  SARADC ch1 ◄── 8-key resistor ladder    │                       ▼
- └───────────────┘   pattern,   │  GPIO2_0 / GPIO2_9 ◄── ALPS encoder A/B  │   I2S1A (master)  ┌──────────────┐
-   discrete regs,    AP30 fits] │                                          │──GPIO1_0..1_3────►│ Cirrus Logic │
-   no PMIC                      │  I2C1C GPIO2_13/12 ───────── 0x66 ───────│──────────────────►│ CS43198 DAC  │
-                                │                                          │                   │ 24.576 MHz   │
- ┌───────────────┐  I2C0A       │  GPIO2_1 mute, GPIO2_2, GPIO2_14,        │                   │ crystal      │
- │ AnalogTek     │◄─GPIO2_10/11─│  GPIO1_4 audio power / enable [roles ?]  │──────────────────►└──────┬───────┘
- │ AT85163S RTC  │  0xA2        │                                          │                          │ analog
- │ + 32.768 kHz  │              │  VOP i8080 8-bit (GPIO0_15..25) ─────────│──► 22-pin FPC ──► 2.0" IPS panel
- └───────────────┘              │  GPIO2_15 LCD reset, GPIO2_4 PWM0 ───────│──► 296×240, backlight
-                                │                                          │                   ┌──────────────┐
- ┌───────────────┐  UART1A      │  EMMC controller (4/8-bit) ──────────────│──► SD-NAND        │ Richtek      │
- │ JieLi BT SoC  │◄─GPIO2_16/17─│                                          │    "TM3F4GUAI"    │ RT6863 amp   │
- │ QFN-32, own   │  115200 8N1  │  SDMMC controller (4-bit) ───────────────│──► microSD slot   └──────┬───────┘
- │ 24 MHz xtal,  │  power =     │  card detect GPIO0_11 (active low)       │                          │
- │ FPC antenna   │  GPIO2_7     │  headphone detect GPIO2_8 + GPIO0_13 ◄───│── jacks               ┌──┴────────────┐
- └──────▲────────┘              └──────────────────────────────────────────┘                       │ 3.5 mm SE +   │
-        │ analog audio in (samples the DAC/amp output) [?]                                          │ 4.4 mm BAL    │
-        └───────────────────────────────────────────────────────────────────────────────────────────┤ jacks         │
-                                                                                                    └───────────────┘
+**Audio and Bluetooth**
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    SOC["Rockchip RKNanoD-G"]
+    DAC["Cirrus Logic CS43198 DAC<br/>24.576 MHz crystal"]
+    AMP["Richtek RT6863 amp"]
+    JACK["3.5 mm SE + 4.4 mm BAL jacks"]
+    BT["JieLi BT SoC, QFN-32<br/>own 24 MHz xtal, FPC antenna"]
+    SOC -->|"I2S1A (master) GPIO1_0..1_3<br/>I2C1C GPIO2_13/12, 0x66"| DAC
+    SOC -->|"GPIO2_1 mute, GPIO2_2, GPIO2_14,<br/>GPIO1_4 audio power / enable [roles ?]"| DAC
+    DAC -->|analog| AMP --> JACK
+    JACK -->|"headphone detect GPIO2_8 + GPIO0_13"| SOC
+    JACK -.->|"analog audio in (samples the<br/>DAC/amp output) [?]"| BT
+    SOC <-->|"UART1A GPIO2_16/17, 115200 8N1<br/>power = GPIO2_7"| BT
 ```
 
-Reading the diagram:
+**USB**
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    USBC["USB-C receptacle (16-pin)"]
+    SW["“7227” DPDT analog USB switch [?]<br/>select = GPIO0_14 [AP30, role ?]"]
+    SOC["Rockchip RKNanoD-G"]
+    RTK["Realtek ALC5686 USB audio chip<br/>0bda:4a35, own 24 MHz crystal"]
+    DAC["CS43198 DAC"]
+    USBC -->|"D+ / D-"| SW
+    SW -->|"1 = RKNanoD (default, File Transfer)"| SOC
+    SW -->|"0 = Realtek (USB DAC mode)"| RTK
+    SOC -->|"GPIO0_12 enable? [?]"| RTK
+    RTK -.->|"analog or I2S path to the output [?]"| DAC
+```
+
+**Power**
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart TD
+    USBC["USB-C VBUS"]
+    CHG["charger IC (not identified) + NTC"]
+    BAT["1200 mAh Li-po + protection PCB<br/>BAT+/-, NTC pads"]
+    REG["regulators: discrete, no PMIC<br/>enable = PLAYON OR POWERHOLD OR VBUS<br/>[WEB EVK pattern, AP30 fits]"]
+    PK["Power key<br/>(wheel push switch [?])"]
+    SOC["Rockchip RKNanoD-G<br/>LFBGA121, 2× Cortex-M3<br/>24 MHz crystal"]
+    USBC --> CHG
+    CHG -->|"VBUS sense (GRF bit)<br/>“full” → GPIO2_3"| SOC
+    SOC -->|"GPIO1_0 (charge ctl?)"| CHG
+    CHG --- BAT --> REG
+    BAT -->|"SARADC ch0 (2:1 divider)"| SOC
+    PK -->|"PLAYON GPIO2_5"| SOC
+    SOC -->|"POWERHOLD GPIO2_6"| REG
+```
+
+**UI, storage and clock**
+
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    SOC["Rockchip RKNanoD-G"]
+    LCD["2.0″ IPS panel, 296×240, backlight"]
+    KEYS["8-key resistor ladder"]
+    ENC["ALPS encoder A/B"]
+    NAND["SD-NAND “TM3F4GUAI”"]
+    SD["microSD slot"]
+    RTC["AnalogTek AT85163S RTC<br/>+ 32.768 kHz"]
+    KEYS -->|"SARADC ch1"| SOC
+    ENC -->|"GPIO2_0 / GPIO2_9"| SOC
+    SOC -->|"VOP i8080 8-bit (GPIO0_15..25) → 22-pin FPC<br/>GPIO2_15 LCD reset, GPIO2_4 PWM0"| LCD
+    SOC -->|"EMMC controller (4/8-bit)"| NAND
+    SOC -->|"SDMMC controller (4-bit)<br/>card detect GPIO0_11 (active low)"| SD
+    SOC -->|"I2C0A GPIO2_10/11, 0xA2"| RTC
+```
+
+Reading the diagrams:
 
 - **Audio:** decoded PCM leaves the SoC on I2S1 (SoC = clock master) to the CS43198; the DAC is controlled over
   I2C1 pin group C and clocks itself from its own 24.576 MHz crystal; the RT6863 drives the two jacks
